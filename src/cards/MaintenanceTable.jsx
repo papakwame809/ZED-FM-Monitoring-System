@@ -1,68 +1,56 @@
 import maintenance from "../data/maintenance";
 
-
 function MaintenanceTable() {
   return (
-    <section className="mt-8">
+    <div className="overflow-x-auto rounded-xl bg-white shadow">
 
-      <h2 className="mb-4 text-2xl font-bold">
-        Upcoming Maintenance
-      </h2>
+      <table className="min-w-full">
 
+        <thead className="border-b bg-gray-50">
 
-      <div className="overflow-hidden rounded-lg border bg-white">
+          <tr>
 
-        <table className="w-full">
+            <th className="px-6 py-4 text-left">Asset</th>
+            <th className="px-6 py-4 text-left">Maintenance Type</th>
+            <th className="px-6 py-4 text-left">Technician</th>
+            <th className="px-6 py-4 text-left">Due Date</th>
+            <th className="px-6 py-4 text-left">Priority</th>
+            <th className="px-6 py-4 text-left">Status</th>
 
-          <thead>
-            <tr className="border-b">
+          </tr>
 
-              <th className="p-4 text-left">
-                Asset
-              </th>
+        </thead>
 
-              <th className="p-4 text-left">
-                Due Date
-              </th>
+        <tbody>
 
-              <th className="p-4 text-left">
-                Assigned
-              </th>
+          {maintenance.map((item) => (
+
+            <tr
+              key={item.id}
+              className="border-b hover:bg-gray-50"
+            >
+
+              <td className="px-6 py-4">{item.asset}</td>
+
+              <td className="px-6 py-4">{item.type}</td>
+
+              <td className="px-6 py-4">{item.technician}</td>
+
+              <td className="px-6 py-4">{item.dueDate}</td>
+
+              <td className="px-6 py-4">{item.priority}</td>
+
+              <td className="px-6 py-4">{item.status}</td>
 
             </tr>
-          </thead>
 
+          ))}
 
-          <tbody>
+        </tbody>
 
-            {maintenance.map((item) => (
-              <tr
-                key={item.id}
-                className="border-b last:border-none"
-              >
+      </table>
 
-                <td className="p-4">
-                  {item.asset}
-                </td>
-
-                <td className="p-4">
-                  {item.dueDate}
-                </td>
-
-                <td className="p-4">
-                  {item.assignedTo}
-                </td>
-
-              </tr>
-            ))}
-
-          </tbody>
-
-        </table>
-
-      </div>
-
-    </section>
+    </div>
   );
 }
 
