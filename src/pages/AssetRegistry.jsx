@@ -1,12 +1,21 @@
 import AssetTable from "../cards/AssetTable";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useAuth } from "../auth/useAuth";
+
 
 function AssetRegistry() {
 
-  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const [showForm, setShowForm] = useState(false);
+
+
+  const isAdmin = user?.role?.toLowerCase() === "admin";
+
 
   return (
     <div className="space-y-10">
+
 
       {/* Header */}
 
@@ -22,40 +31,168 @@ function AssetRegistry() {
 
       </div>
 
+
+
       {/* Actions */}
 
       <div className="flex items-center gap-8">
 
-        <button
-          onClick={() => navigate("/maintenance")}
-          className="rounded-xl bg-black px-6 py-3 text-white transition hover:bg-violet-700"
-        >
-          + Schedule Maintenance
-        </button>
+
+        {
+          isAdmin && (
+
+            <button
+              onClick={() => setShowForm(!showForm)}
+              className="
+                rounded-xl
+                bg-black
+                px-6
+                py-3
+                text-white
+                transition
+                hover:bg-violet-700
+              "
+            >
+              + Add Asset
+            </button>
+
+          )
+        }
+
 
         <input
           type="text"
           placeholder="Search assets..."
-          className="rounded-xl bg-black px-6 py-3 text-white placeholder:text-gray-300"
+          className="
+            rounded-xl
+            bg-black
+            px-6
+            py-3
+            text-white
+            placeholder:text-gray-300
+          "
         />
 
+
         <button
-          className="rounded-xl bg-black px-6 py-3 text-white transition hover:bg-violet-700"
+          className="
+            rounded-xl
+            bg-black
+            px-6
+            py-3
+            text-white
+            transition
+            hover:bg-violet-700
+          "
         >
           Filter ▼
         </button>
 
+
       </div>
+
+
+
+      {/* Add Asset Form */}
+
+      {
+        showForm && isAdmin && (
+
+          <div className="rounded-xl bg-white p-6 shadow">
+
+
+            <h2 className="mb-6 text-xl font-bold">
+              Add New Asset
+            </h2>
+
+
+
+            <div className="grid grid-cols-2 gap-5">
+
+
+              <input
+                type="text"
+                placeholder="Asset Name"
+                className="rounded-lg border p-3"
+              />
+
+
+              <input
+                type="text"
+                placeholder="Asset Type"
+                className="rounded-lg border p-3"
+              />
+
+
+              <input
+                type="text"
+                placeholder="Location"
+                className="rounded-lg border p-3"
+              />
+
+
+              <input
+                type="text"
+                placeholder="Serial Number"
+                className="rounded-lg border p-3"
+              />
+
+
+              <input
+                type="text"
+                placeholder="Status"
+                className="rounded-lg border p-3"
+              />
+
+
+              <input
+                type="text"
+                placeholder="Assigned Technician"
+                className="rounded-lg border p-3"
+              />
+
+
+            </div>
+
+
+
+            <button
+              className="
+                mt-6
+                rounded-xl
+                bg-violet-600
+                px-6
+                py-3
+                text-white
+                hover:bg-violet-700
+              "
+            >
+              Save Asset
+            </button>
+
+
+          </div>
+
+        )
+      }
+
+
+
 
       {/* Asset Table */}
 
       <AssetTable />
 
+
+
+
       {/* Quick Stats */}
 
-      <div className="grid grid-cols-1 gap-8 sm: gird-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+
 
         <div className="rounded-xl bg-white p-6 shadow">
+
           <p className="text-sm text-gray-500">
             Active Incidents
           </p>
@@ -67,7 +204,10 @@ function AssetRegistry() {
           <p className="text-red-500">
             3 Critical Faults
           </p>
+
         </div>
+
+
 
         <div className="rounded-xl bg-white p-6 shadow">
 
@@ -81,6 +221,9 @@ function AssetRegistry() {
 
         </div>
 
+
+
+
         <div className="rounded-xl bg-white p-6 shadow">
 
           <p className="text-sm text-gray-500">
@@ -92,6 +235,9 @@ function AssetRegistry() {
           </h2>
 
         </div>
+
+
+
 
         <div className="rounded-xl bg-white p-6 shadow">
 
@@ -105,10 +251,13 @@ function AssetRegistry() {
 
         </div>
 
+
       </div>
+
 
     </div>
   );
 }
+
 
 export default AssetRegistry;

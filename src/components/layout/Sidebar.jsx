@@ -8,6 +8,7 @@ import {
   FileText,
   ChevronLeft,
   ChevronRight,
+  Users,
 } from "lucide-react";
 
 
@@ -37,6 +38,12 @@ const menuItems = [
     path: "/reports",
     icon: FileText,
   },
+
+  {
+ name:"Users",
+ path:"/users",
+ icon:Users,
+}
 ];
 
 

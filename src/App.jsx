@@ -15,36 +15,56 @@ import AssetDetails from "./pages/AssetDetails";
 import MaintenanceSchedule from "./pages/MaintenanceSchedule";
 import Reports from "./pages/Reports";
 import Login from "./pages/Login";
+import Users from "./pages/Users";
+
+import RequireAuth from "./auth/RequireAuth";
+import RequireAdmin from "./auth/RequireAdmin";
 
 
 function App() {
 
   return (
+
     <BrowserRouter>
 
       <Routes>
 
+
         {/* Default route */}
+
         <Route
           path="/"
           element={
             <Navigate
-              to="/dashboard"
+              to="/login"
               replace
             />
           }
         />
 
 
-        {/* Login page - no dashboard layout */}
+
+        {/* Login */}
+
         <Route
           path="/login"
           element={<Login />}
         />
 
 
-        {/* Dashboard application */}
-        <Route element={<DashboardLayout />}>
+
+        {/* Protected dashboard */}
+
+        <Route
+
+          element={
+            <RequireAuth>
+              <DashboardLayout />
+            </RequireAuth>
+          }
+
+        >
+
 
           <Route
             path="/dashboard"
@@ -76,10 +96,35 @@ function App() {
           />
 
 
+
+          {/* Admin only */}
+
           <Route
+
             path="/maintenance"
-            element={<MaintenanceSchedule />}
+
+            element={
+              <RequireAdmin>
+                <MaintenanceSchedule />
+              </RequireAdmin>
+            }
+
           />
+
+
+
+          <Route
+
+            path="/users"
+
+            element={
+              <RequireAdmin>
+                <Users />
+              </RequireAdmin>
+            }
+
+          />
+
 
 
           <Route
@@ -87,24 +132,34 @@ function App() {
             element={<Reports />}
           />
 
+
         </Route>
 
 
-        {/* Catch unknown routes */}
+
+        {/* Unknown routes */}
+
         <Route
+
           path="*"
+
           element={
             <Navigate
-              to="/dashboard"
+              to="/login"
               replace
             />
           }
+
         />
+
 
       </Routes>
 
+
     </BrowserRouter>
+
   );
+
 }
 
 
