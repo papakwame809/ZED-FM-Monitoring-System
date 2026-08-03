@@ -1,74 +1,289 @@
-import incidents from "../data/incidents";
+import { Pencil, Trash2 } from "lucide-react";
 
 
-function IncidentTable() {
+function severityColor(severity) {
+  switch (severity) {
+    case "Critical":
+      return "text-red-600";
+
+    case "High":
+      return "text-orange-600";
+
+    case "Medium":
+      return "text-yellow-600";
+
+    case "Low":
+      return "text-green-600";
+
+    default:
+      return "text-gray-600";
+  }
+}
+
+
+
+function statusColor(status) {
+  switch (status) {
+    case "Open":
+      return "text-red-600";
+
+    case "In Progress":
+      return "text-yellow-600";
+
+    case "Resolved":
+      return "text-green-600";
+
+    default:
+      return "text-gray-600";
+  }
+}
+
+
+
+
+function IncidentTable({
+  incidents = [],
+  onDelete,
+  onEdit,
+  isAdmin = false,
+}) {
+
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-6">
+
+    <div className="rounded-xl border bg-white p-6 shadow-sm">
+
 
       <h2 className="mb-6 text-2xl font-bold">
-        Incident Table
+        Recent Incidents
       </h2>
 
 
-      {/* Table Header */}
-      <div className="grid grid-cols-[120px_2fr_1fr_1fr_1fr_1fr_120px] gap-4 border-b border-gray-200 pb-4 font-semibold">
 
-        <span>ID</span>
-        <span>Incident</span>
-        <span>Category</span>
-        <span>Severity</span>
-        <span>Assigned To</span>
-        <span>Status</span>
-        <span>Date</span>
+
+      <div className="overflow-x-auto">
+
+
+        <table className="min-w-full">
+
+
+          <thead className="border-b bg-gray-50">
+
+            <tr>
+
+              <th className="px-6 py-4 text-left">
+                Title
+              </th>
+
+              <th className="px-6 py-4 text-left">
+                Asset
+              </th>
+
+              <th className="px-6 py-4 text-left">
+                Severity
+              </th>
+
+              <th className="px-6 py-4 text-left">
+                Technician
+              </th>
+
+              <th className="px-6 py-4 text-left">
+                Status
+              </th>
+
+              <th className="px-6 py-4 text-left">
+                Date
+              </th>
+
+
+              {
+                isAdmin && (
+
+                  <th className="px-6 py-4 text-left">
+                    Actions
+                  </th>
+
+                )
+              }
+
+
+            </tr>
+
+
+          </thead>
+
+
+
+
+
+
+          <tbody>
+
+
+            {
+              incidents.length === 0 ? (
+
+                <tr>
+
+                  <td
+                    colSpan={isAdmin ? 7 : 6}
+                    className="py-8 text-center text-gray-500"
+                  >
+
+                    No incidents recorded.
+
+                  </td>
+
+
+                </tr>
+
+
+              ) : (
+
+
+                incidents.map((incident)=>(
+
+
+                  <tr
+                    key={incident.id}
+                    className="border-b transition hover:bg-gray-50"
+                  >
+
+
+                    <td className="px-6 py-4 font-medium">
+
+                      {incident.title}
+
+                    </td>
+
+
+
+
+                    <td className="px-6 py-4">
+
+                      {incident.asset}
+
+                    </td>
+
+
+
+
+                    <td
+                      className={`px-6 py-4 font-medium ${severityColor(
+                        incident.severity
+                      )}`}
+                    >
+
+                      {incident.severity}
+
+                    </td>
+
+
+
+
+                    <td className="px-6 py-4">
+
+                      {incident.technician}
+
+                    </td>
+
+
+
+
+                    <td
+                      className={`px-6 py-4 font-medium ${statusColor(
+                        incident.status
+                      )}`}
+                    >
+
+                      {incident.status}
+
+                    </td>
+
+
+
+
+                    <td className="px-6 py-4">
+
+                      {incident.date}
+
+                    </td>
+
+
+
+
+
+                    {
+                      isAdmin && (
+
+                        <td className="px-6 py-4">
+
+
+                          <div className="flex gap-2">
+
+
+                            <button
+                              onClick={() => onEdit(incident)}
+                              className="rounded-lg bg-blue-600 p-2 text-white hover:bg-blue-700"
+                            >
+
+                              <Pencil size={16}/>
+
+                            </button>
+
+
+
+
+
+                            <button
+                              onClick={() => onDelete(incident.id)}
+                              className="rounded-lg bg-red-600 p-2 text-white hover:bg-red-700"
+                            >
+
+                              <Trash2 size={16}/>
+
+                            </button>
+
+
+
+                          </div>
+
+
+                        </td>
+
+
+                      )
+                    }
+
+
+
+                  </tr>
+
+
+                ))
+
+
+              )
+            }
+
+
+
+          </tbody>
+
+
+
+        </table>
+
 
       </div>
 
 
-      {/* Table Rows */}
-      <div className="divide-y divide-gray-100">
-
-        {incidents.map((item) => (
-
-          <div
-            key={item.id}
-            className="grid grid-cols-[120px_2fr_1fr_1fr_1fr_1fr_120px] gap-4 py-4 text-sm"
-          >
-
-            <span>{item.id}</span>
-
-            <span className="font-medium">
-              {item.incident}
-            </span>
-
-            <span>
-              {item.category}
-            </span>
-
-            <span>
-              {item.severity}
-            </span>
-
-            <span>
-              {item.assignedTo}
-            </span>
-
-            <span>
-              {item.status}
-            </span>
-
-            <span>
-              {item.date}
-            </span>
-
-          </div>
-
-        ))}
-
-      </div>
 
     </div>
+
+
   );
+
 }
 
 

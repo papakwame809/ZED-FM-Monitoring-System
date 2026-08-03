@@ -1,35 +1,33 @@
 const incidents = [
   {
-    id: "ZMD-001",
-    incident: "Generator Failure",
-    category: "Power",
+    id: "INC-001",
+    title: "Generator Failure",
+    asset: "Backup Generator",
     severity: "Critical",
-    assignedTo: "-",
+    technician: "Kwame",
     status: "Open",
     date: "Today",
   },
 
   {
-    id: "ZMD-002",
-    incident: "UPS Fault",
-    category: "Power",
+    id: "INC-002",
+    title: "UPS Fault",
+    asset: "UPS System",
     severity: "Medium",
-    assignedTo: "-",
-    status: "Fixed",
+    technician: "Ama",
+    status: "Resolved",
     date: "27 Jul",
   },
 
   {
-    id: "ZMD-003",
-    incident: "Studio Console",
-    category: "Audio",
+    id: "INC-003",
+    title: "Studio Console Failure",
+    asset: "Studio Console",
     severity: "Low",
-    assignedTo: "-",
+    technician: "Kojo",
     status: "Pending",
     date: "26 Jul",
   },
-
 ];
-
 
 export default incidents;

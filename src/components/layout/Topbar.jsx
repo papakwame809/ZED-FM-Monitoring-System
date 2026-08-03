@@ -44,7 +44,7 @@ function Topbar({ user }) {
 
 
           <p className="text-sm text-gray-500">
-            {user.role?.charAt(0).toUpperCase() + user.role?.slice(1)}
+            {user.role}
           </p>
 
         </div>

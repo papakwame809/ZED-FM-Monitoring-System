@@ -1,6 +1,6 @@
 const assets = [
   {
-    id: "AST-001",
+    id: "1",
     name: "FM Transmitter",
     type: "Transmission",
     location: "Tower Room",
@@ -37,7 +37,7 @@ const assets = [
   },
 
   {
-    id: "AST-002",
+    id: "2",
     name: "Studio Console",
     type: "Audio",
     location: "Studio A",
