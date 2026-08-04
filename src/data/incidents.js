@@ -4,9 +4,10 @@ const incidents = [
     title: "Generator Failure",
     asset: "Backup Generator",
     severity: "Critical",
-    technician: "Kwame",
+    technician: "Ama",
     status: "Open",
-    date: "Today",
+    description: "Generator stopped working.",
+    date: "2026-08-03",
   },
 
   {
@@ -14,19 +15,21 @@ const incidents = [
     title: "UPS Fault",
     asset: "UPS System",
     severity: "Medium",
-    technician: "Ama",
+    technician: "Kwame",
     status: "Resolved",
-    date: "27 Jul",
+    description: "UPS battery issue.",
+    date: "2026-07-27",
   },
 
   {
     id: "INC-003",
-    title: "Studio Console Failure",
+    title: "Studio Console Issue",
     asset: "Studio Console",
     severity: "Low",
-    technician: "Kojo",
+    technician: "Sara",
     status: "Pending",
-    date: "26 Jul",
+    description: "Audio channel problem.",
+    date: "2026-07-26",
   },
 ];
 

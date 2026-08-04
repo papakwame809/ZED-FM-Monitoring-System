@@ -1,6 +1,8 @@
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+
 import IncidentForm from "../components/forms/IncidentForm";
-import { useState } from "react";
+
 import incidentsData from "../data/incidents";
 
 
@@ -9,8 +11,11 @@ function ReportIncident() {
 
   const navigate = useNavigate();
 
+  const { id } = useParams();
 
-  const [incident, setIncident] = useState({
+
+
+  const emptyIncident = {
 
     title: "",
     asset: "",
@@ -20,19 +25,33 @@ function ReportIncident() {
     description: "",
     date: "",
 
-  });
+  };
+
+
+
+  const [incident, setIncident] = useState(emptyIncident);
 
 
 
 
 
-  function handleSubmit(e){
-
-    e.preventDefault();
+  const isEditing = Boolean(id);
 
 
 
-    const existingIncidents =
+
+
+
+
+  useEffect(() => {
+
+
+    if (!isEditing) return;
+
+
+
+    const storedIncidents =
+
       JSON.parse(
         localStorage.getItem("incidents")
       )
@@ -42,29 +61,123 @@ function ReportIncident() {
 
 
 
-    const newIncident = {
 
-      id: `INC-${Date.now()}`,
+    const selectedIncident =
 
-      ...incident,
-
-      date:
-        incident.date ||
-        new Date().toLocaleDateString(),
-
-    };
+      storedIncidents.find(
+        (item) =>
+          item.id === id
+      );
 
 
 
 
 
-    const updatedIncidents = [
+    if(selectedIncident){
 
-      newIncident,
+      setIncident(selectedIncident);
 
-      ...existingIncidents,
+    }
 
-    ];
+
+
+  }, [id, isEditing]);
+
+
+
+
+
+
+
+
+
+  function handleSubmit(e){
+
+
+    e.preventDefault();
+
+
+
+    const storedIncidents =
+
+      JSON.parse(
+        localStorage.getItem("incidents")
+      )
+      ||
+      incidentsData;
+
+
+
+
+
+    let updatedIncidents;
+
+
+
+
+
+    if(isEditing){
+
+
+      updatedIncidents =
+
+        storedIncidents.map(
+          (item)=>
+
+            item.id === id
+
+            ?
+
+            {
+              ...item,
+              ...incident,
+            }
+
+            :
+
+            item
+
+        );
+
+
+    }
+
+    else{
+
+
+      const newIncident = {
+
+
+        id:
+          `INC-${Date.now()}`,
+
+        ...incident,
+
+
+        date:
+
+          incident.date ||
+
+          new Date()
+          .toLocaleDateString(),
+
+      };
+
+
+
+
+      updatedIncidents = [
+
+        newIncident,
+
+        ...storedIncidents,
+
+      ];
+
+
+    }
+
+
 
 
 
@@ -81,11 +194,13 @@ function ReportIncident() {
 
 
 
-
     navigate("/incidents");
 
 
   }
+
+
+
 
 
 
@@ -99,9 +214,17 @@ function ReportIncident() {
 
       <button
 
-        onClick={()=>navigate("/incidents")}
+        onClick={() => navigate("/incidents")}
 
-        className="rounded-xl bg-black px-5 py-2 text-white"
+        className="
+        rounded-xl
+        bg-black
+        px-5
+        py-2
+        text-white
+        transition
+        hover:bg-violet-600
+        "
 
       >
 
@@ -113,19 +236,42 @@ function ReportIncident() {
 
 
 
+
+
       <div>
 
+
         <h1 className="text-3xl font-bold">
-          Report Incident
+
+          {
+            isEditing
+            ?
+            "Edit Incident"
+            :
+            "Report Incident"
+          }
+
         </h1>
 
 
+
+
         <p className="text-gray-600">
-          Create a new technical issue report
+
+          {
+            isEditing
+            ?
+            "Update existing incident details."
+            :
+            "Create a new technical issue report."
+          }
+
         </p>
 
 
       </div>
+
+
 
 
 
@@ -138,6 +284,8 @@ function ReportIncident() {
         setIncident={setIncident}
 
         onSubmit={handleSubmit}
+
+        isEditing={isEditing}
 
       />
 

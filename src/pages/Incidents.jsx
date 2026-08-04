@@ -29,25 +29,21 @@ function Incidents() {
 
 
 
-  const [incidents, setIncidents] = useState(
-
-    JSON.parse(
-      localStorage.getItem("incidents")
-    )
-    ||
-    incidentsData
-
+  const storedIncidents = JSON.parse(
+    localStorage.getItem("incidents")
   );
 
 
+
+  const [incidents, setIncidents] = useState(
+    storedIncidents || incidentsData
+  );
 
 
 
   const [searchTerm, setSearchTerm] = useState("");
 
   const [filterStatus, setFilterStatus] = useState("All");
-
-
 
 
 
@@ -68,9 +64,8 @@ function Incidents() {
 
 
     const updatedIncidents = incidents.filter(
-
-      incident => incident.id !== id
-
+      (incident) =>
+        incident.id !== id
     );
 
 
@@ -80,16 +75,12 @@ function Incidents() {
 
 
     localStorage.setItem(
-
       "incidents",
-
       JSON.stringify(updatedIncidents)
-
     );
 
 
   }
-
 
 
 
@@ -102,9 +93,25 @@ function Incidents() {
   function handleEditIncident(incident) {
 
 
-    console.log(
-      "Editing incident:",
-      incident
+    navigate(
+      `/report-incident/${incident.id}`
+    );
+
+
+  }
+
+
+
+
+
+
+
+
+  function handleViewIncident(incident) {
+
+
+    navigate(
+      `/incidents/${incident.id}`
     );
 
 
@@ -118,40 +125,43 @@ function Incidents() {
 
 
 
-  const filteredIncidents = incidents.filter((incident)=>{
+  const filteredIncidents = incidents.filter(
+    (incident)=>{
 
 
-    const searchMatch =
+      const searchMatch =
 
-      incident.title
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase())
+        incident.title
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
 
-      ||
+        ||
 
-      incident.asset
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-
-
-
-
-
-    const statusMatch =
-
-      filterStatus === "All"
-
-      ||
-
-      incident.status === filterStatus;
+        incident.asset
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
 
 
 
 
-    return searchMatch && statusMatch;
+
+      const statusMatch =
+
+        filterStatus === "All"
+
+        ||
+
+        incident.status === filterStatus;
 
 
-  });
+
+
+
+      return searchMatch && statusMatch;
+
+
+    }
+  );
 
 
 
@@ -166,13 +176,9 @@ function Incidents() {
     <div className="space-y-10">
 
 
-
-
-
       {/* Header */}
 
       <div>
-
 
         <h1 className="text-3xl font-bold">
           Incident Management
@@ -199,9 +205,6 @@ function Incidents() {
       <div className="flex flex-wrap items-center gap-6">
 
 
-
-
-
         {
           canManageIncidents && (
 
@@ -226,7 +229,6 @@ function Incidents() {
             </button>
 
           )
-
         }
 
 
@@ -243,8 +245,8 @@ function Incidents() {
 
           value={searchTerm}
 
-          onChange={
-            (e)=>setSearchTerm(e.target.value)
+          onChange={(e)=>
+            setSearchTerm(e.target.value)
           }
 
           className="
@@ -263,13 +265,12 @@ function Incidents() {
 
 
 
-
         <select
 
           value={filterStatus}
 
-          onChange={
-            (e)=>setFilterStatus(e.target.value)
+          onChange={(e)=>
+            setFilterStatus(e.target.value)
           }
 
           className="
@@ -304,7 +305,6 @@ function Incidents() {
         </select>
 
 
-
       </div>
 
 
@@ -317,7 +317,6 @@ function Incidents() {
 
       {/* Incident Table */}
 
-
       <IncidentTable
 
         incidents={filteredIncidents}
@@ -328,8 +327,9 @@ function Incidents() {
 
         onEdit={handleEditIncident}
 
-      />
+        onView={handleViewIncident}
 
+      />
 
 
 

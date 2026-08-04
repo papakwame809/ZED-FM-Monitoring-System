@@ -1,15 +1,35 @@
-function IncidentForm() {
+function IncidentForm({
+  incident,
+  setIncident,
+  onSubmit,
+}) {
+
+  function handleChange(e) {
+
+    setIncident({
+
+      ...incident,
+
+      [e.target.name]: e.target.value,
+
+    });
+
+  }
+
+
   return (
+
     <div className="rounded-xl border border-gray-300 bg-white p-8">
 
-      {/* Form title */}
+      {/* Form Title */}
       <h2 className="mb-8 text-xl font-semibold">
         Report Incident
       </h2>
 
-
-      <form className="flex flex-col gap-5">
-
+      <form
+        onSubmit={onSubmit}
+        className="flex flex-col gap-5"
+      >
 
         {/* Incident Title */}
         <div className="flex flex-col gap-2">
@@ -20,6 +40,9 @@ function IncidentForm() {
 
           <input
             type="text"
+            name="title"
+            value={incident.title}
+            onChange={handleChange}
             placeholder="Enter incident title..."
             className="h-10 rounded-xl border border-gray-400 px-4 text-sm outline-none"
           />
@@ -28,30 +51,38 @@ function IncidentForm() {
 
 
 
-        {/* Category */}
+        {/* Asset */}
         <div className="flex flex-col gap-2">
 
           <label className="text-base font-bold">
-            Category
+            Asset
           </label>
 
           <select
+            name="asset"
+            value={incident.asset}
+            onChange={handleChange}
             className="h-10 rounded-xl border border-gray-400 px-4 text-sm outline-none"
           >
-            <option>
-              Power
+
+            <option value="">
+              Select Asset
             </option>
 
-            <option>
-              Audio
+            <option value="FM Transmitter">
+              FM Transmitter
             </option>
 
-            <option>
-              Visual
+            <option value="Studio Console">
+              Studio Console
             </option>
 
-            <option>
-              Software
+            <option value="Generator">
+              Generator
+            </option>
+
+            <option value="Broadcast Console">
+              Broadcast Console
             </option>
 
           </select>
@@ -68,22 +99,29 @@ function IncidentForm() {
           </label>
 
           <select
+            name="severity"
+            value={incident.severity}
+            onChange={handleChange}
             className="h-10 rounded-xl border border-gray-400 px-4 text-sm outline-none"
           >
 
-            <option>
+            <option value="">
+              Select Severity
+            </option>
+
+            <option value="Critical">
               Critical
             </option>
 
-            <option>
+            <option value="High">
               High
             </option>
 
-            <option>
+            <option value="Medium">
               Medium
             </option>
 
-            <option>
+            <option value="Low">
               Low
             </option>
 
@@ -101,18 +139,25 @@ function IncidentForm() {
           </label>
 
           <select
+            name="technician"
+            value={incident.technician}
+            onChange={handleChange}
             className="h-10 rounded-xl border border-gray-400 px-4 text-sm outline-none"
           >
 
-            <option>
+            <option value="">
+              Assign Technician
+            </option>
+
+            <option value="Ama">
               Ama
             </option>
 
-            <option>
+            <option value="Kwame">
               Kwame
             </option>
 
-            <option>
+            <option value="Sara">
               Sara
             </option>
 
@@ -129,10 +174,12 @@ function IncidentForm() {
             Description
           </label>
 
-
           <textarea
+            name="description"
+            value={incident.description}
+            onChange={handleChange}
             rows="4"
-            placeholder="Describe the incident, what happened, and my observations..."
+            placeholder="Describe the incident..."
             className="rounded-xl border border-gray-400 p-4 text-sm outline-none"
           />
 
@@ -146,7 +193,6 @@ function IncidentForm() {
           <label className="text-base font-bold">
             Attachment
           </label>
-
 
           <button
             type="button"
@@ -169,22 +215,21 @@ function IncidentForm() {
             Cancel
           </button>
 
-
           <button
             type="submit"
-            className="rounded-xl bg-black px-8 py-2 text-base font-bold text-white"
+            className="rounded-xl bg-violet-600 px-8 py-2 text-base font-bold text-white transition hover:bg-violet-700"
           >
             Submit Incident
           </button>
 
         </div>
 
-
       </form>
 
     </div>
-  );
-}
 
+  );
+
+}
 
 export default IncidentForm;

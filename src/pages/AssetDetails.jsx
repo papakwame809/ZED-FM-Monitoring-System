@@ -1,23 +1,22 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import assets from "../data/assets";
+import { useEffect, useState } from "react";
+
+import assetsData from "../data/assets";
 
 
 function statusColor(status) {
 
-  switch (status) {
+  switch(status){
 
     case "Operational":
       return "text-green-600";
 
-
     case "Maintenance Due":
       return "text-yellow-600";
 
-
     case "Faulty":
       return "text-red-600";
-
 
     default:
       return "text-gray-600";
@@ -28,22 +27,64 @@ function statusColor(status) {
 
 
 
-function AssetDetails() {
+
+
+function AssetDetails(){
+
 
   const { id } = useParams();
 
-
-  const asset = assets.find(
-    (item) => item.id === id
-  );
+  const navigate = useNavigate();
 
 
+  const [asset,setAsset] = useState(null);
 
-  if (!asset) {
+
+
+
+
+  useEffect(()=>{
+
+
+    const storedAssets =
+
+      JSON.parse(
+        localStorage.getItem("assets")
+      )
+      ||
+      assetsData;
+
+
+
+
+    const foundAsset = storedAssets.find(
+
+      item =>
+        String(item.id) === String(id)
+
+    );
+
+
+
+    setAsset(foundAsset);
+
+
+
+  },[id]);
+
+
+
+
+
+
+
+
+  if(!asset){
 
     return (
 
       <div className="space-y-6">
+
 
         <h1 className="text-3xl font-bold">
           Asset not found
@@ -52,13 +93,16 @@ function AssetDetails() {
 
         <Link
 
-          to={`/assets/${asset.id}`}
+          to="/assets"
 
-          className="text-violet-600 hover:underline"
+          className="
+          text-violet-600
+          hover:underline
+          "
 
         >
 
-          Back to Asset Registry
+          ← Back to Asset Registry
 
         </Link>
 
@@ -73,13 +117,12 @@ function AssetDetails() {
 
 
 
+
+
   return (
 
     <div className="space-y-10">
 
-
-
-      {/* Back */}
 
       <Link
 
@@ -106,8 +149,6 @@ function AssetDetails() {
 
 
 
-      {/* Header */}
-
       <div>
 
         <h1 className="text-3xl font-bold">
@@ -131,18 +172,10 @@ function AssetDetails() {
 
 
 
-      {/* Asset Information */}
-
-      <div className="rounded-xl bg-white p-8 shadow">
 
 
-        <h2 className="mb-6 text-2xl font-bold">
 
-          Asset Information
-
-        </h2>
-
-
+      <Section title="Asset Information">
 
 
         <div className="grid grid-cols-2 gap-8">
@@ -155,7 +188,7 @@ function AssetDetails() {
 
 
           <Info
-            label="Asset Name"
+            label="Name"
             value={asset.name}
           />
 
@@ -179,8 +212,8 @@ function AssetDetails() {
 
 
           <Info
-            label="Purchase Date"
-            value={asset.purchaseDate}
+            label="Technician"
+            value={asset.technician}
           />
 
 
@@ -201,7 +234,6 @@ function AssetDetails() {
             <p
               className={`
               mt-1
-              text-lg
               font-medium
               ${statusColor(asset.status)}
               `}
@@ -218,7 +250,7 @@ function AssetDetails() {
         </div>
 
 
-      </div>
+      </Section>
 
 
 
@@ -226,97 +258,47 @@ function AssetDetails() {
 
 
 
-      {/* Maintenance History */}
+
 
       <Section title="Maintenance History">
 
 
-        <table className="w-full">
+        {
+          asset.maintenance?.length ? (
+
+            asset.maintenance.map((job,index)=>(
+
+              <div
+                key={index}
+                className="border-b py-3"
+              >
+
+                <p>
+                  {job.task}
+                </p>
+
+                <p className="text-sm text-gray-500">
+
+                  {job.date} - {job.technician}
+
+                </p>
 
 
-          <thead>
-
-            <tr className="border-b">
-
-              <th className="py-3 text-left">
-                Date
-              </th>
-
-              <th className="py-3 text-left">
-                Task
-              </th>
-
-              <th className="py-3 text-left">
-                Technician
-              </th>
-
-              <th className="py-3 text-left">
-                Status
-              </th>
+              </div>
 
 
-            </tr>
+            ))
 
 
-          </thead>
+          ) : (
 
+            <p className="text-gray-500">
+              No maintenance history.
+            </p>
 
+          )
 
-
-          <tbody>
-
-
-          {
-            asset.maintenance?.length ? (
-
-              asset.maintenance.map((job,index)=>(
-
-
-                <tr
-                  key={index}
-                  className="border-b"
-                >
-
-                  <td className="py-4">
-                    {job.date}
-                  </td>
-
-
-                  <td className="py-4">
-                    {job.task}
-                  </td>
-
-
-                  <td className="py-4">
-                    {job.technician}
-                  </td>
-
-
-                  <td className="py-4">
-                    {job.status}
-                  </td>
-
-
-                </tr>
-
-
-              ))
-
-
-            ) : (
-
-              <EmptyRow text="No maintenance history." />
-
-            )
-
-
-          }
-
-
-          </tbody>
-
-
-        </table>
+        }
 
 
       </Section>
@@ -327,101 +309,48 @@ function AssetDetails() {
 
 
 
-      {/* Related Incidents */}
+
 
       <Section title="Related Incidents">
 
 
-        <table className="w-full">
+        {
+          asset.incidents?.length ? (
+
+            asset.incidents.map((incident)=>(
+
+              <div
+                key={incident.id}
+                className="border-b py-3"
+              >
+
+                <p className="font-medium">
+                  {incident.title}
+                </p>
 
 
-          <thead>
+                <p className="text-sm text-gray-500">
 
-            <tr className="border-b">
+                  {incident.status}
 
-
-              <th className="py-3 text-left">
-                ID
-              </th>
+                </p>
 
 
-              <th className="py-3 text-left">
-                Title
-              </th>
+              </div>
 
 
-              <th className="py-3 text-left">
-                Severity
-              </th>
+            ))
 
 
-              <th className="py-3 text-left">
-                Status
-              </th>
+          ) : (
 
+            <p className="text-gray-500">
+              No related incidents.
+            </p>
 
-            </tr>
+          )
 
-
-          </thead>
-
-
-
-
-          <tbody>
-
-
-          {
-            asset.incidents?.length ? (
-
-
-              asset.incidents.map((incident)=>(
-
-                <tr
-                  key={incident.id}
-                  className="border-b"
-                >
-
-                  <td className="py-4">
-                    {incident.id}
-                  </td>
-
-
-                  <td className="py-4">
-                    {incident.title}
-                  </td>
-
-
-                  <td className="py-4">
-                    {incident.severity}
-                  </td>
-
-
-                  <td className="py-4">
-                    {incident.status}
-                  </td>
-
-
-                </tr>
-
-
-              ))
-
-
-            ) : (
-
-              <EmptyRow text="No related incidents." />
-
-            )
-
-
-          }
-
-
-          </tbody>
-
-
-        </table>
+        }
 
 
       </Section>
@@ -431,19 +360,28 @@ function AssetDetails() {
 
 
 
-      {/* Actions */}
+
+
 
       <div className="flex gap-6">
 
 
-        <button className="
+        <button
+
+          onClick={() =>
+            navigate(`/assets/${asset.id}/edit`)
+          }
+
+          className="
           rounded-xl
           bg-black
           px-6
           py-3
           text-white
           hover:bg-violet-700
-        ">
+          "
+
+        >
 
           Edit Asset
 
@@ -451,14 +389,25 @@ function AssetDetails() {
 
 
 
-        <button className="
+
+
+
+        <button
+
+          onClick={() =>
+            navigate("/maintenance")
+          }
+
+          className="
           rounded-xl
           bg-black
           px-6
           py-3
           text-white
           hover:bg-violet-700
-        ">
+          "
+
+        >
 
           Schedule Maintenance
 
@@ -469,7 +418,6 @@ function AssetDetails() {
 
 
 
-
     </div>
 
   );
@@ -480,17 +428,24 @@ function AssetDetails() {
 
 
 
-function Section({title, children}) {
+
+
+function Section({title,children}){
 
   return (
 
     <div className="rounded-xl bg-white p-8 shadow">
 
+
       <h2 className="mb-6 text-2xl font-bold">
+
         {title}
+
       </h2>
 
+
       {children}
+
 
     </div>
 
@@ -502,7 +457,9 @@ function Section({title, children}) {
 
 
 
-function Info({label,value}) {
+
+
+function Info({label,value}){
 
   return (
 
@@ -514,7 +471,7 @@ function Info({label,value}) {
 
 
       <p className="mt-1 text-lg font-medium">
-        {value}
+        {value || "-"}
       </p>
 
 
@@ -525,33 +482,6 @@ function Info({label,value}) {
 }
 
 
-
-
-
-function EmptyRow({text}) {
-
-  return (
-
-    <tr>
-
-      <td
-        colSpan="4"
-        className="
-        py-6
-        text-center
-        text-gray-500
-        "
-      >
-
-        {text}
-
-      </td>
-
-    </tr>
-
-  );
-
-}
 
 
 

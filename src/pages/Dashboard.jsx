@@ -3,25 +3,35 @@ import SummaryCards from "../cards/SummaryCards";
 import IncidentTable from "../cards/IncidentTable";
 import EquipmentStatus from "../cards/EquipmentStatus";
 import MaintenanceTable from "../cards/MaintenanceTable";
-
 import incidentsData from "../data/incidents";
-import maintenance from "../data/maintenance";
-import assets from "../data/assets";
-
+import assetsData from "../data/assets";
+import maintenanceData from "../data/maintenance";
 
 function Dashboard() {
 
-
   const incidents =
+
     JSON.parse(
       localStorage.getItem("incidents")
     )
     ||
     incidentsData;
 
+  const assets =
 
+    JSON.parse(
+      localStorage.getItem("assets")
+    )
+    ||
+    assetsData;
 
+  const maintenance =
 
+    JSON.parse(
+      localStorage.getItem("maintenance")
+    )
+    ||
+    maintenanceData;
 
   const activeIncidents = incidents.filter(
 
@@ -33,83 +43,46 @@ function Dashboard() {
 
   ).length;
 
-
-
-
-
-
   const totalAssets = assets.length;
-
-
-
-
-
 
   const maintenanceDue = assets.filter(
 
-    (asset) =>
+    (asset)=>
 
       asset.status === "Maintenance Due"
 
   ).length;
 
-
-
-
-
-
-
   const systemStatus = assets.some(
 
-    (asset) =>
+    (asset)=>
 
       asset.status === "Faulty"
 
   )
 
-    ?
+  ?
 
-    "Attention Required"
+  "Attention Required"
 
-    :
+  :
 
-    "Operational";
-
-
-
-
-
-
-
+  "Operational";
 
   return (
 
     <div className="space-y-8">
 
-
       <DashboardHeader />
-
-
-
-
 
       <SummaryCards
 
         activeIncidents={activeIncidents}
-
         totalAssets={totalAssets}
-
         maintenanceDue={maintenanceDue}
-
         systemStatus={systemStatus}
 
       />
-
-
-
-
-
-
 
       <IncidentTable
 
@@ -118,40 +91,19 @@ function Dashboard() {
         isAdmin={false}
 
       />
-
-
-
-
-
-
-
       <EquipmentStatus
 
         assets={assets}
 
       />
-
-
-
-
-
-
-
       <MaintenanceTable
 
         maintenance={maintenance}
 
       />
-
-
-
-
-
     </div>
 
   );
 
 }
-
-
 export default Dashboard;
