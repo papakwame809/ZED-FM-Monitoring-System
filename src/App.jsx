@@ -10,6 +10,7 @@ import DashboardLayout from "./components/layout/DashboardLayout";
 
 
 import Dashboard from "./pages/Dashboard";
+
 import Incidents from "./pages/Incidents";
 import IncidentDetails from "./pages/IncidentDetails";
 import ReportIncident from "./pages/ReportIncident";
@@ -31,13 +32,13 @@ import RequireAdmin from "./auth/RequireAdmin";
 
 
 
+
 function App(){
 
 
   return (
 
     <BrowserRouter>
-
 
       <Routes>
 
@@ -60,6 +61,7 @@ function App(){
 
 
 
+
         {/* Login */}
 
         <Route
@@ -76,11 +78,9 @@ function App(){
 
 
 
-
-        {/* Protected Routes */}
+        {/* Protected Application */}
 
         <Route
-
 
           element={
 
@@ -92,12 +92,14 @@ function App(){
 
           }
 
-
         >
 
 
 
 
+
+
+          {/* Dashboard */}
 
           <Route
 
@@ -113,7 +115,7 @@ function App(){
 
 
 
-          {/* INCIDENTS */}
+          {/* Incidents */}
 
           <Route
 
@@ -122,6 +124,7 @@ function App(){
             element={<Incidents />}
 
           />
+
 
 
           <Route
@@ -159,7 +162,8 @@ function App(){
 
 
 
-          {/* ASSETS */}
+          {/* Assets */}
+
 
           <Route
 
@@ -168,6 +172,21 @@ function App(){
             element={<AssetRegistry />}
 
           />
+
+
+
+          {/* IMPORTANT:
+              Must come BEFORE /assets/:id
+          */}
+
+          <Route
+
+            path="/assets/:id/edit"
+
+            element={<AssetRegistry />}
+
+          />
+
 
 
           <Route
@@ -186,7 +205,7 @@ function App(){
 
 
 
-          {/* ADMIN */}
+          {/* Admin */}
 
           <Route
 
@@ -204,6 +223,9 @@ function App(){
 
           />
 
+
+
+
           <Route
 
             path="/users"
@@ -219,6 +241,11 @@ function App(){
             }
 
           />
+
+
+
+
+
           <Route
 
             path="/reports"
@@ -226,9 +253,19 @@ function App(){
             element={<Reports />}
 
           />
+
+
+
         </Route>
 
-        {/* Catch all */}
+
+
+
+
+
+
+
+        {/* Unknown routes */}
 
         <Route
 
@@ -247,9 +284,17 @@ function App(){
           }
 
         />
+
+
       </Routes>
 
+
     </BrowserRouter>
+
   );
+
 }
+
+
+
 export default App;

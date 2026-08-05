@@ -366,26 +366,19 @@ function AssetDetails(){
       <div className="flex gap-6">
 
 
-        <button
-
-          onClick={() =>
-            navigate(`/assets/${asset.id}/edit`)
-          }
-
-          className="
-          rounded-xl
-          bg-black
-          px-6
-          py-3
-          text-white
-          hover:bg-violet-700
-          "
-
-        >
-
-          Edit Asset
-
-        </button>
+          <button
+            onClick={() => navigate(`/assets/${asset.id}/edit`)}
+            className="
+              rounded-xl
+              bg-black
+              px-6
+              py-3
+              text-white
+              hover:bg-violet-700
+            "
+          >
+            Edit Asset
+          </button>
 
 
 

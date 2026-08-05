@@ -18,3 +18,5 @@ Viewer / Staff
 ❌ Cannot schedule maintenance
 ❌ Cannot edit assets
 ❌ Cannot delete anything
+
+Adding pictures for incident reporting?

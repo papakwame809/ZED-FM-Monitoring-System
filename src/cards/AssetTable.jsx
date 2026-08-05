@@ -23,10 +23,6 @@ function statusColor(status) {
   }
 
 }
-
-
-
-
 function AssetTable({
 
   assets,
@@ -41,13 +37,9 @@ function AssetTable({
 
     <div className="overflow-x-auto rounded-xl border bg-white shadow-sm">
 
-
       <table className="min-w-full">
 
-
         <thead className="border-b bg-gray-50">
-
-
           <tr>
 
 
@@ -80,8 +72,6 @@ function AssetTable({
               Warranty
             </th>
 
-
-
             {
               isAdmin && (
 
@@ -92,22 +82,13 @@ function AssetTable({
               )
             }
 
-
           </tr>
-
-
         </thead>
-
-
-
-
 
         <tbody>
 
-
           {
             assets.map((asset) => (
-
 
               <tr
 
@@ -118,16 +99,10 @@ function AssetTable({
                 transition
                 hover:bg-gray-50
                 "
-
               >
-
-
-
                 <td className="px-6 py-4">
 
-
                   <Link
-
                     to={`/assets/${asset.id}`}
 
                     className="
@@ -135,19 +110,10 @@ function AssetTable({
                     text-violet-600
                     hover:underline
                     "
-
                   >
-
                     {asset.name}
-
                   </Link>
-
-
                 </td>
-
-
-
-
 
                 <td className="px-6 py-4">
 
@@ -155,19 +121,11 @@ function AssetTable({
 
                 </td>
 
-
-
-
-
                 <td className="px-6 py-4">
 
                   {asset.location}
 
                 </td>
-
-
-
-
 
                 <td
 
@@ -183,19 +141,11 @@ function AssetTable({
 
                 </td>
 
-
-
-
-
                 <td className="px-6 py-4">
 
                   {asset.lastService}
 
                 </td>
-
-
-
-
 
                 <td className="px-6 py-4">
 
@@ -203,21 +153,12 @@ function AssetTable({
 
                 </td>
 
-
-
-
-
-
-
                 {
                   isAdmin && (
 
                     <td className="px-6 py-4">
 
-
                       <div className="flex gap-3">
-
-
                         <button
 
                           onClick={() => onEdit(asset)}
@@ -231,16 +172,10 @@ function AssetTable({
                           transition
                           hover:bg-blue-700
                           "
-
                         >
 
                           Edit
-
                         </button>
-
-
-
-
 
                         <button
 
@@ -258,14 +193,11 @@ function AssetTable({
                           hover:bg-red-700
                           "
 
-
                         >
 
                           Delete
 
-
                         </button>
-
 
                       </div>
 
@@ -276,28 +208,17 @@ function AssetTable({
 
                 }
 
-
-
-
               </tr>
-
 
             ))
 
           }
-
-
         </tbody>
-
-
       </table>
-
 
     </div>
 
   );
-
 }
 
-
-export default AssetTable;
+export default AssetTable; 
