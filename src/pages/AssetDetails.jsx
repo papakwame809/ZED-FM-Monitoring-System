@@ -1,8 +1,13 @@
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import assetsData from "../data/assets";
+
+import { getAsset } from "../api/assetsApi";
+import { getMaintenanceRecords } from "../api/maintenanceApi";
+import { getIncidents } from "../api/incidentsApi";
+
+
 
 
 function statusColor(status) {
@@ -12,11 +17,14 @@ function statusColor(status) {
     case "Operational":
       return "text-green-600";
 
+
     case "Maintenance Due":
       return "text-yellow-600";
 
+
     case "Faulty":
       return "text-red-600";
+
 
     default:
       return "text-gray-600";
@@ -24,6 +32,9 @@ function statusColor(status) {
   }
 
 }
+
+
+
 
 
 
@@ -37,7 +48,21 @@ function AssetDetails(){
   const navigate = useNavigate();
 
 
+
   const [asset,setAsset] = useState(null);
+
+  const [maintenance,setMaintenance] = useState([]);
+
+  const [incidents,setIncidents] = useState([]);
+
+
+
+  const [loading,setLoading] = useState(true);
+
+  const [error,setError] = useState("");
+
+
+
 
 
 
@@ -46,28 +71,86 @@ function AssetDetails(){
   useEffect(()=>{
 
 
-    const storedAssets =
-
-      JSON.parse(
-        localStorage.getItem("assets")
-      )
-      ||
-      assetsData;
+    async function loadData(){
 
 
+      try{
 
 
-    const foundAsset = storedAssets.find(
-
-      item =>
-        String(item.id) === String(id)
-
-    );
+        setLoading(true);
 
 
 
-    setAsset(foundAsset);
+        const [
 
+          assetData,
+
+          maintenanceData,
+
+          incidentData
+
+        ] = await Promise.all([
+
+
+          getAsset(id),
+
+
+          getMaintenanceRecords(id),
+
+
+          getIncidents(id)
+
+
+        ]);
+
+
+
+
+        setAsset(assetData);
+
+
+        setMaintenance(
+          maintenanceData
+        );
+
+
+        setIncidents(
+          incidentData
+        );
+
+
+
+      }
+
+
+      catch(err){
+
+
+        console.error(err);
+
+
+        setError(
+          "Failed to load asset details"
+        );
+
+
+      }
+
+
+      finally{
+
+
+        setLoading(false);
+
+
+      }
+
+
+    }
+
+
+
+    loadData();
 
 
   },[id]);
@@ -79,7 +162,26 @@ function AssetDetails(){
 
 
 
-  if(!asset){
+
+  if(loading){
+
+    return (
+      <p>
+        Loading asset...
+      </p>
+    );
+
+  }
+
+
+
+
+
+
+
+
+
+  if(error || !asset){
 
     return (
 
@@ -89,6 +191,7 @@ function AssetDetails(){
         <h1 className="text-3xl font-bold">
           Asset not found
         </h1>
+
 
 
         <Link
@@ -119,9 +222,12 @@ function AssetDetails(){
 
 
 
+
+
   return (
 
     <div className="space-y-10">
+
 
 
       <Link
@@ -142,7 +248,11 @@ function AssetDetails(){
 
         Back to Assets
 
+
       </Link>
+
+
+
 
 
 
@@ -181,28 +291,16 @@ function AssetDetails(){
         <div className="grid grid-cols-2 gap-8">
 
 
-          <Info
-            label="Asset ID"
-            value={asset.id}
-          />
+          <Info label="Asset ID" value={asset.id}/>
 
 
-          <Info
-            label="Name"
-            value={asset.name}
-          />
+          <Info label="Name" value={asset.name}/>
 
 
-          <Info
-            label="Type"
-            value={asset.type}
-          />
+          <Info label="Type" value={asset.type}/>
 
 
-          <Info
-            label="Location"
-            value={asset.location}
-          />
+          <Info label="Location" value={asset.location}/>
 
 
           <Info
@@ -212,8 +310,14 @@ function AssetDetails(){
 
 
           <Info
-            label="Technician"
-            value={asset.technician}
+            label="Purchase Date"
+            value={asset.purchaseDate}
+          />
+
+
+          <Info
+            label="Last Service"
+            value={asset.lastService}
           />
 
 
@@ -221,6 +325,7 @@ function AssetDetails(){
             label="Warranty"
             value={asset.warranty}
           />
+
 
 
 
@@ -247,6 +352,7 @@ function AssetDetails(){
           </div>
 
 
+
         </div>
 
 
@@ -264,24 +370,66 @@ function AssetDetails(){
 
 
         {
-          asset.maintenance?.length ? (
+          maintenance.length ? (
 
-            asset.maintenance.map((job,index)=>(
+
+            maintenance.map(record=>(
+
 
               <div
-                key={index}
-                className="border-b py-3"
+
+                key={record.id}
+
+                className="
+                border-b
+                py-4
+                "
+
               >
 
-                <p>
-                  {job.task}
+                <p className="font-medium">
+
+                  {record.task}
+
                 </p>
+
 
                 <p className="text-sm text-gray-500">
 
-                  {job.date} - {job.technician}
+                  Technician: {record.technician}
 
                 </p>
+
+
+
+                <p className="text-sm text-gray-500">
+
+                  Date: {record.maintenance_date}
+
+                </p>
+
+
+
+                <p className="text-sm">
+
+                  Status: {record.status}
+
+                </p>
+
+
+
+
+                {
+                  record.notes && (
+
+                    <p className="mt-2 text-sm text-gray-500">
+
+                      {record.notes}
+
+                    </p>
+
+                  )
+                }
 
 
               </div>
@@ -290,10 +438,16 @@ function AssetDetails(){
             ))
 
 
-          ) : (
+          )
+
+          :
+
+          (
 
             <p className="text-gray-500">
+
               No maintenance history.
+
             </p>
 
           )
@@ -315,23 +469,46 @@ function AssetDetails(){
 
 
         {
-          asset.incidents?.length ? (
+          incidents.length ? (
 
-            asset.incidents.map((incident)=>(
+            incidents.map(incident=>(
+
 
               <div
+
                 key={incident.id}
-                className="border-b py-3"
+
+                className="
+                border-b
+                py-4
+                "
+
               >
 
                 <p className="font-medium">
+
                   {incident.title}
+
                 </p>
 
 
                 <p className="text-sm text-gray-500">
 
-                  {incident.status}
+                  {incident.description}
+
+                </p>
+
+
+                <p className="text-sm">
+
+                  Status: {incident.status}
+
+                </p>
+
+
+                <p className="text-sm text-gray-500">
+
+                  Date: {incident.incident_date}
 
                 </p>
 
@@ -342,10 +519,16 @@ function AssetDetails(){
             ))
 
 
-          ) : (
+          )
+
+          :
+
+          (
 
             <p className="text-gray-500">
+
               No related incidents.
+
             </p>
 
           )
@@ -366,20 +549,26 @@ function AssetDetails(){
       <div className="flex gap-6">
 
 
-          <button
-            onClick={() => navigate(`/assets/${asset.id}/edit`)}
-            className="
-              rounded-xl
-              bg-black
-              px-6
-              py-3
-              text-white
-              hover:bg-violet-700
-            "
-          >
-            Edit Asset
-          </button>
+        <button
 
+          onClick={() =>
+            navigate(`/assets/${asset.id}/edit`)
+          }
+
+          className="
+          rounded-xl
+          bg-black
+          px-6
+          py-3
+          text-white
+          hover:bg-violet-700
+          "
+
+        >
+
+          Edit Asset
+
+        </button>
 
 
 
@@ -423,11 +612,17 @@ function AssetDetails(){
 
 
 
+
 function Section({title,children}){
 
   return (
 
-    <div className="rounded-xl bg-white p-8 shadow">
+    <div className="
+      rounded-xl
+      bg-white
+      p-8
+      shadow
+    ">
 
 
       <h2 className="mb-6 text-2xl font-bold">
@@ -452,19 +647,25 @@ function Section({title,children}){
 
 
 
+
 function Info({label,value}){
+
 
   return (
 
     <div>
 
       <p className="text-sm text-gray-500">
+
         {label}
+
       </p>
 
 
       <p className="mt-1 text-lg font-medium">
+
         {value || "-"}
+
       </p>
 
 
@@ -473,8 +674,6 @@ function Info({label,value}){
   );
 
 }
-
-
 
 
 

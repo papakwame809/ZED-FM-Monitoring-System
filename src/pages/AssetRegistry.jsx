@@ -2,7 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import AssetTable from "../cards/AssetTable";
-import assetsData from "../data/assets";
+
+import {
+  getAssets,
+  getAsset,
+  createAsset,
+  updateAsset,
+  deleteAsset,
+} from "../api/assetsApi";
 
 import { useAuth } from "../auth/useAuth";
 import { ROLES, hasRole } from "../auth/roles";
@@ -14,21 +21,18 @@ const emptyForm = {
   location: "",
   serialNumber: "",
   status: "",
-  technician: "",
+  purchaseDate: "",
   lastService: "",
   warranty: "",
 };
 
 
 
-
-function AssetRegistry() {
-
+function AssetRegistry(){
 
   const navigate = useNavigate();
 
   const { id } = useParams();
-
 
   const { user } = useAuth();
 
@@ -39,41 +43,19 @@ function AssetRegistry() {
   );
 
 
+  const [assets,setAssets] = useState([]);
 
+  const [loading,setLoading] = useState(true);
 
-  const [assets, setAssets] = useState(() => {
+  const [saving,setSaving] = useState(false);
 
-    const stored =
-      localStorage.getItem("assets");
-
-
-    if(stored){
-
-      return JSON.parse(stored);
-
-    }
-
-
-    localStorage.setItem(
-      "assets",
-      JSON.stringify(assetsData)
-    );
-
-
-    return assetsData;
-
-  });
-
-
-
-
+  const [error,setError] = useState("");
 
   const [formData,setFormData] = useState(emptyForm);
 
   const [editingAsset,setEditingAsset] = useState(null);
 
   const [showForm,setShowForm] = useState(false);
-
 
   const [searchTerm,setSearchTerm] = useState("");
 
@@ -83,94 +65,93 @@ function AssetRegistry() {
 
 
 
-
-
-
-
-  /*
-    Load asset when URL has id
-
-    /assets/:id/edit
-  */
-
   useEffect(()=>{
 
+    async function load(){
 
-    if(!id) return;
+      try{
 
+        const data = await getAssets();
 
+        setAssets(data);
 
-    const asset = assets.find(
+      }
 
-      item =>
-      String(item.id) === String(id)
+      catch(err){
 
-    );
+        console.error(err);
 
+        setError("Failed to load assets");
 
+      }
 
-    if(!asset){
+      finally{
 
-      navigate("/assets");
+        setLoading(false);
 
-      return;
+      }
 
     }
 
 
+    load();
 
-
-
-    setEditingAsset(asset);
-
-
-    setFormData({
-
-      name: asset.name ?? "",
-      type: asset.type ?? "",
-      location: asset.location ?? "",
-      serialNumber: asset.serialNumber ?? "",
-      status: asset.status ?? "",
-      technician: asset.technician ?? "",
-      lastService: asset.lastService ?? "",
-      warranty: asset.warranty ?? "",
-
-    });
-
-
-
-    setShowForm(true);
-
-
-
-  },[
-    id,
-    assets,
-    navigate
-  ]);
+  },[]);
 
 
 
 
 
 
+  useEffect(()=>{
+
+    if(!id) return;
 
 
+    async function loadSingle(){
 
-  function saveAssets(updated){
+      try{
 
-
-    setAssets(updated);
-
-
-    localStorage.setItem(
-      "assets",
-      JSON.stringify(updated)
-    );
+        const asset = await getAsset(id);
 
 
-  }
+        setEditingAsset(asset);
 
+
+        setFormData({
+
+          name: asset.name ?? "",
+          type: asset.type ?? "",
+          location: asset.location ?? "",
+          serialNumber: asset.serialNumber ?? "",
+          status: asset.status ?? "",
+          purchaseDate: asset.purchaseDate ?? "",
+          lastService: asset.lastService ?? "",
+          warranty: asset.warranty ?? "",
+
+        });
+
+
+        setShowForm(true);
+
+
+      }
+
+      catch(err){
+
+        console.error(err);
+
+        navigate("/assets");
+
+      }
+
+    }
+
+
+    loadSingle();
+
+
+  },[id,navigate]);
 
 
 
@@ -181,25 +162,18 @@ function AssetRegistry() {
 
   function handleChange(e){
 
-
-    const {
-      name,
-      value
-    } = e.target;
-
+    const {name,value} = e.target;
 
 
     setFormData(prev=>({
 
       ...prev,
 
-      [name]:value,
+      [name]:value
 
     }));
 
-
   }
-
 
 
 
@@ -210,13 +184,114 @@ function AssetRegistry() {
 
   function resetForm(){
 
-
     setFormData(emptyForm);
 
     setEditingAsset(null);
 
     setShowForm(false);
 
+  }
+
+
+
+
+
+
+
+
+
+  async function handleSaveAsset(){
+
+    setSaving(true);
+
+
+    try{
+
+
+      console.log(
+        "FORM DATA:",
+        formData
+      );
+
+
+
+      let result;
+
+
+
+      if(editingAsset){
+
+
+        result = await updateAsset(
+          editingAsset.id,
+          formData
+        );
+
+
+        setAssets(prev=>
+
+          prev.map(asset=>
+
+            asset.id === result.id
+            ?
+            result
+            :
+            asset
+
+          )
+
+        );
+
+
+      }
+
+
+      else{
+
+
+        result = await createAsset(
+          formData
+        );
+
+
+        setAssets(prev=>[
+
+          ...prev,
+
+          result
+
+        ]);
+
+
+      }
+
+
+
+      resetForm();
+
+
+      navigate("/assets");
+
+
+    }
+
+
+    catch(err){
+
+      console.error(
+        "SAVE ERROR:",
+        err
+      );
+
+    }
+
+
+    finally{
+
+      setSaving(false);
+
+    }
+
 
   }
 
@@ -228,77 +303,41 @@ function AssetRegistry() {
 
 
 
-  function handleSaveAsset(){
+
+  async function handleDeleteAsset(id){
 
 
-    let updatedAssets;
+    if(!window.confirm(
+      "Delete this asset?"
+    ))
+    return;
 
 
 
+    try{
 
-    if(editingAsset){
+
+      await deleteAsset(id);
 
 
-      updatedAssets = assets.map(asset=>
+      setAssets(prev=>
 
-        asset.id === editingAsset.id
-
-        ?
-
-        {
-          ...asset,
-          ...formData,
-        }
-
-        :
-
-        asset
+        prev.filter(
+          asset=>asset.id !== id
+        )
 
       );
 
 
     }
 
-    else{
+    catch(err){
 
-
-      const newAsset = {
-
-        id:`AST-${Date.now()}`,
-
-        ...formData,
-
-      };
-
-
-
-      updatedAssets = [
-
-        ...assets,
-
-        newAsset,
-
-      ];
-
+      console.error(err);
 
     }
 
-
-
-
-
-
-    saveAssets(updatedAssets);
-
-
-    resetForm();
-
-
-    navigate("/assets");
-
-
   }
-
 
 
 
@@ -309,48 +348,11 @@ function AssetRegistry() {
 
   function handleEditAsset(asset){
 
-
     navigate(
       `/assets/${asset.id}/edit`
     );
 
-
   }
-
-
-
-
-
-
-
-
-
-  function handleDeleteAsset(id){
-
-
-    const confirmed = window.confirm(
-      "Delete this asset?"
-    );
-
-
-    if(!confirmed) return;
-
-
-
-    const updatedAssets = assets.filter(
-
-      asset =>
-      asset.id !== id
-
-    );
-
-
-
-    saveAssets(updatedAssets);
-
-
-  }
-
 
 
 
@@ -365,17 +367,17 @@ function AssetRegistry() {
     return assets.filter(asset=>{
 
 
-      const searchMatch =
+      const search =
 
         asset.name
-        .toLowerCase()
+        ?.toLowerCase()
         .includes(
           searchTerm.toLowerCase()
         );
 
 
 
-      const statusMatch =
+      const status =
 
         filterStatus === "All"
 
@@ -385,10 +387,7 @@ function AssetRegistry() {
 
 
 
-      return (
-        searchMatch &&
-        statusMatch
-      );
+      return search && status;
 
 
     });
@@ -406,6 +405,18 @@ function AssetRegistry() {
 
 
 
+  if(loading)
+    return <p>Loading assets...</p>;
+
+
+  if(error)
+    return <p>{error}</p>;
+
+
+
+
+
+
 
 
   return (
@@ -415,16 +426,9 @@ function AssetRegistry() {
 
       <div>
 
-
         <h1 className="text-3xl font-bold">
 
-          {
-            id
-            ?
-            "Edit Asset"
-            :
-            "Asset Registry"
-          }
+          {id ? "Edit Asset" : "Asset Registry"}
 
         </h1>
 
@@ -435,11 +439,7 @@ function AssetRegistry() {
 
         </p>
 
-
       </div>
-
-
-
 
 
 
@@ -473,7 +473,6 @@ function AssetRegistry() {
           </button>
 
         )
-
       }
 
 
@@ -481,11 +480,7 @@ function AssetRegistry() {
 
 
 
-
-
-
-      <div className="flex gap-6">
-
+      <div className="flex gap-5">
 
         <input
 
@@ -508,8 +503,6 @@ function AssetRegistry() {
 
 
 
-
-
         <select
 
           value={filterStatus}
@@ -527,21 +520,13 @@ function AssetRegistry() {
 
         >
 
-          <option value="All">
-            All
-          </option>
+          <option>All</option>
 
-          <option value="Operational">
-            Operational
-          </option>
+          <option>Operational</option>
 
-          <option value="Maintenance Due">
-            Maintenance Due
-          </option>
+          <option>Maintenance Due</option>
 
-          <option value="Faulty">
-            Faulty
-          </option>
+          <option>Faulty</option>
 
         </select>
 
@@ -553,11 +538,8 @@ function AssetRegistry() {
 
 
 
-
-
-
       {
-        showForm && isAdmin && (
+        showForm && (
 
           <div className="
           rounded-xl
@@ -567,86 +549,89 @@ function AssetRegistry() {
           ">
 
 
-            <h2 className="mb-6 text-xl font-bold">
+          <h2 className="text-xl font-bold mb-5">
 
-              {
-                editingAsset
-                ?
-                "Edit Asset"
-                :
-                "Add New Asset"
-              }
+            {
+              editingAsset
+              ?
+              "Update Asset"
+              :
+              "Add Asset"
+            }
 
-            </h2>
-
-
+          </h2>
 
 
 
-            <div className="grid grid-cols-2 gap-5">
+          <div className="grid grid-cols-2 gap-5">
 
 
-              {
-                Object.keys(formData).map(field=>(
+          {
+            Object.keys(emptyForm).map(field=>(
 
-                  <input
+              <input
 
-                    key={field}
+                key={field}
 
-                    name={field}
+                name={field}
 
-                    value={formData[field]}
+                value={
+                  formData[field] ?? ""
+                }
 
-                    onChange={handleChange}
+                onChange={handleChange}
 
-                    placeholder={field}
+                placeholder={field}
 
-                    className="
-                    rounded-lg
-                    border
-                    p-3
-                    "
+                className="
+                rounded-lg
+                border
+                p-3
+                "
 
-                  />
+              />
 
-                ))
+            ))
 
-              }
-
-
-            </div>
+          }
 
 
+          </div>
 
 
 
 
-            <button
+          <button
 
-              onClick={handleSaveAsset}
+            onClick={handleSaveAsset}
 
-              className="
-              mt-6
-              rounded-xl
-              bg-violet-600
-              px-6
-              py-3
-              text-white
-              "
+            disabled={saving}
 
-            >
+            className="
+            mt-6
+            rounded-xl
+            bg-violet-600
+            px-6
+            py-3
+            text-white
+            "
 
-              {
-                editingAsset
-                ?
-                "Update Asset"
-                :
-                "Save Asset"
-              }
+          >
+
+            {
+              saving
+              ?
+              "Saving..."
+              :
+              editingAsset
+              ?
+              "Update Asset"
+              :
+              "Save Asset"
+            }
 
 
-            </button>
-
+          </button>
 
 
           </div>
@@ -654,9 +639,6 @@ function AssetRegistry() {
         )
 
       }
-
-
-
 
 
 
@@ -676,13 +658,11 @@ function AssetRegistry() {
       />
 
 
-
     </div>
 
   );
 
 }
-
 
 
 export default AssetRegistry;

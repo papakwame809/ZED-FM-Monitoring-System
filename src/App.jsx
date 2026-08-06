@@ -24,6 +24,7 @@ import MaintenanceSchedule from "./pages/MaintenanceSchedule";
 import Reports from "./pages/Reports";
 import Users from "./pages/Users";
 import Login from "./pages/Login";
+import TestAssets from "./pages/TestAssets";
 
 
 import RequireAuth from "./auth/RequireAuth";
@@ -284,6 +285,14 @@ function App(){
           }
 
         />
+
+        <Route
+
+path="/test-assets"
+
+element={<TestAssets />}
+
+/>
 
 
       </Routes>

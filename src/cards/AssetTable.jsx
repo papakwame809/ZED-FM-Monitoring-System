@@ -23,9 +23,14 @@ function statusColor(status) {
   }
 
 }
+
+
+
+
+
 function AssetTable({
 
-  assets,
+  assets = [],
   onDelete,
   onEdit,
   isAdmin
@@ -33,13 +38,31 @@ function AssetTable({
 }) {
 
 
+
+  function formatDate(date){
+
+    if(!date) return "N/A";
+
+
+    return new Date(date)
+      .toLocaleDateString();
+
+  }
+
+
+
+
+
   return (
 
     <div className="overflow-x-auto rounded-xl border bg-white shadow-sm">
 
+
       <table className="min-w-full">
 
+
         <thead className="border-b bg-gray-50">
+
           <tr>
 
 
@@ -72,6 +95,7 @@ function AssetTable({
               Warranty
             </th>
 
+
             {
               isAdmin && (
 
@@ -82,13 +106,42 @@ function AssetTable({
               )
             }
 
+
           </tr>
+
         </thead>
+
+
+
+
+
 
         <tbody>
 
+
           {
-            assets.map((asset) => (
+            assets.length === 0 ? (
+
+              <tr>
+
+                <td
+                  colSpan={isAdmin ? 7 : 6}
+                  className="px-6 py-6 text-center text-gray-500"
+                >
+
+                  No assets found
+
+                </td>
+
+              </tr>
+
+
+            )
+
+            :
+
+
+            assets.map(asset => (
 
               <tr
 
@@ -99,10 +152,15 @@ function AssetTable({
                 transition
                 hover:bg-gray-50
                 "
+
               >
+
+
                 <td className="px-6 py-4">
 
+
                   <Link
+
                     to={`/assets/${asset.id}`}
 
                     className="
@@ -110,22 +168,42 @@ function AssetTable({
                     text-violet-600
                     hover:underline
                     "
+
                   >
-                    {asset.name}
+
+                    {asset.name ?? "Unnamed Asset"}
+
                   </Link>
+
+
                 </td>
+
+
+
+
+
 
                 <td className="px-6 py-4">
 
-                  {asset.type}
+                  {asset.type ?? "N/A"}
 
                 </td>
+
+
+
+
+
 
                 <td className="px-6 py-4">
 
-                  {asset.location}
+                  {asset.location ?? "N/A"}
 
                 </td>
+
+
+
+
+
 
                 <td
 
@@ -137,28 +215,48 @@ function AssetTable({
 
                 >
 
-                  {asset.status}
+                  {asset.status ?? "Unknown"}
 
                 </td>
+
+
+
+
+
 
                 <td className="px-6 py-4">
 
-                  {asset.lastService}
+                  {formatDate(asset.last_service)}
 
                 </td>
+
+
+
+
+
 
                 <td className="px-6 py-4">
 
-                  {asset.warranty}
+                  {asset.warranty ?? "N/A"}
 
                 </td>
+
+
+
+
+
+
+
 
                 {
                   isAdmin && (
 
                     <td className="px-6 py-4">
 
+
                       <div className="flex gap-3">
+
+
                         <button
 
                           onClick={() => onEdit(asset)}
@@ -172,16 +270,20 @@ function AssetTable({
                           transition
                           hover:bg-blue-700
                           "
+
                         >
 
                           Edit
+
                         </button>
+
+
+
+
 
                         <button
 
-
                           onClick={() => onDelete(asset.id)}
-
 
                           className="
                           rounded-lg
@@ -199,26 +301,36 @@ function AssetTable({
 
                         </button>
 
+
+
                       </div>
 
 
                     </td>
 
                   )
-
                 }
+
+
 
               </tr>
 
             ))
 
           }
+
+
         </tbody>
+
+
       </table>
+
 
     </div>
 
   );
+
 }
 
-export default AssetTable; 
+
+export default AssetTable;
