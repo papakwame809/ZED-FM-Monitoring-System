@@ -3,179 +3,170 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import IncidentForm from "../components/forms/IncidentForm";
 
-import incidentsData from "../data/incidents";
+import {
+    createIncident,
+    updateIncident,
+    getIncident
+} from "../api/incidentsApi";
 
+import {
+    getAssets
+} from "../api/assetsApi";
 
-function ReportIncident() {
 
+function ReportIncident(){
 
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
-  const { id } = useParams();
+    const { id } = useParams();
 
 
+    const emptyIncident = {
 
-  const emptyIncident = {
+        assetId: "",
+        title: "",
+        description: "",
+        status: "Open",
+        severity: "",
+        technician: "",
+        incidentDate: ""
 
-    title: "",
-    asset: "",
-    severity: "",
-    technician: "",
-    status: "Open",
-    description: "",
-    date: "",
+    };
 
-  };
 
+    const [incident, setIncident] =
+        useState(emptyIncident);
 
 
-  const [incident, setIncident] = useState(emptyIncident);
+    const [assets, setAssets] =
+        useState([]);
 
 
+    const [loading, setLoading] =
+        useState(false);
 
 
+    const isEditing =
+        Boolean(id);
 
-  const isEditing = Boolean(id);
 
 
 
 
+    useEffect(() => {
 
+        async function loadPageData(){
 
+            try{
 
-  useEffect(() => {
+                const assetsData =
+                    await getAssets();
 
 
-    if (!isEditing) return;
+                setAssets(
+                    assetsData
+                );
 
 
+                console.log(
+                    "Assets loaded:",
+                    assetsData
+                );
 
-    const storedIncidents =
 
-      JSON.parse(
-        localStorage.getItem("incidents")
-      )
-      ||
-      incidentsData;
 
+                if(isEditing){
 
+                    const incidentData =
+                        await getIncident(id);
 
 
+                    setIncident(
+                        incidentData
+                    );
 
-    const selectedIncident =
+                }
 
-      storedIncidents.find(
-        (item) =>
-          item.id === id
-      );
-
-
-
-
-
-    if(selectedIncident){
-
-      setIncident(selectedIncident);
-
-    }
-
-
-
-  }, [id, isEditing]);
-
-
-
-
-
-
-
-
-
-  function handleSubmit(e){
-
-
-    e.preventDefault();
-
-
-
-    const storedIncidents =
-
-      JSON.parse(
-        localStorage.getItem("incidents")
-      )
-      ||
-      incidentsData;
-
-
-
-
-
-    let updatedIncidents;
-
-
-
-
-
-    if(isEditing){
-
-
-      updatedIncidents =
-
-        storedIncidents.map(
-          (item)=>
-
-            item.id === id
-
-            ?
-
-            {
-              ...item,
-              ...incident,
             }
 
-            :
+            catch(err){
 
-            item
+                console.error(
+                    "Failed loading page:",
+                    err
+                );
 
-        );
+            }
 
+        }
+
+
+        loadPageData();
+
+
+    }, [id, isEditing]);
+
+
+
+
+
+
+
+
+
+    async function handleSubmit(e){
+
+        e.preventDefault();
+
+
+        try{
+
+            setLoading(true);
+
+
+
+            if(isEditing){
+
+                await updateIncident(
+                    id,
+                    incident
+                );
+
+            }
+
+            else{
+
+                await createIncident(
+                    incident
+                );
+
+            }
+
+
+            navigate("/incidents");
+
+
+        }
+
+        catch(err){
+
+            console.error(err);
+
+
+            alert(
+                err.message
+            );
+
+        }
+
+        finally{
+
+            setLoading(false);
+
+        }
 
     }
 
-    else{
-
-
-      const newIncident = {
-
-
-        id:
-          `INC-${Date.now()}`,
-
-        ...incident,
-
-
-        date:
-
-          incident.date ||
-
-          new Date()
-          .toLocaleDateString(),
-
-      };
-
-
-
-
-      updatedIncidents = [
-
-        newIncident,
-
-        ...storedIncidents,
-
-      ];
-
-
-    }
 
 
 
@@ -183,117 +174,99 @@ function ReportIncident() {
 
 
 
-    localStorage.setItem(
 
-      "incidents",
+    return (
 
-      JSON.stringify(updatedIncidents)
+        <div className="space-y-10">
+
+
+            <button
+
+                onClick={() =>
+                    navigate("/incidents")
+                }
+
+                className="
+                rounded-xl
+                bg-black
+                px-5
+                py-2
+                text-white
+                hover:bg-violet-600
+                "
+
+            >
+
+                ← Back to Incidents
+
+            </button>
+
+
+
+
+
+
+
+            <div>
+
+                <h1 className="text-3xl font-bold">
+
+                    {
+                        isEditing
+                        ?
+                        "Edit Incident"
+                        :
+                        "Report Incident"
+                    }
+
+                </h1>
+
+
+
+                <p className="text-gray-600">
+
+                    {
+                        isEditing
+                        ?
+                        "Update incident details."
+                        :
+                        "Create a new technical issue report."
+                    }
+
+                </p>
+
+
+            </div>
+
+
+
+
+
+
+
+
+
+            <IncidentForm
+
+                incident={incident}
+
+                setIncident={setIncident}
+
+                onSubmit={handleSubmit}
+
+                loading={loading}
+
+                assets={assets}
+
+                isEditing={isEditing}
+
+            />
+
+
+
+        </div>
 
     );
-
-
-
-
-    navigate("/incidents");
-
-
-  }
-
-
-
-
-
-
-
-
-
-  return (
-
-    <div className="space-y-10">
-
-
-      <button
-
-        onClick={() => navigate("/incidents")}
-
-        className="
-        rounded-xl
-        bg-black
-        px-5
-        py-2
-        text-white
-        transition
-        hover:bg-violet-600
-        "
-
-      >
-
-        ← Back to Incidents
-
-      </button>
-
-
-
-
-
-
-
-      <div>
-
-
-        <h1 className="text-3xl font-bold">
-
-          {
-            isEditing
-            ?
-            "Edit Incident"
-            :
-            "Report Incident"
-          }
-
-        </h1>
-
-
-
-
-        <p className="text-gray-600">
-
-          {
-            isEditing
-            ?
-            "Update existing incident details."
-            :
-            "Create a new technical issue report."
-          }
-
-        </p>
-
-
-      </div>
-
-
-
-
-
-
-
-      <IncidentForm
-
-        incident={incident}
-
-        setIncident={setIncident}
-
-        onSubmit={handleSubmit}
-
-        isEditing={isEditing}
-
-      />
-
-
-
-    </div>
-
-  );
 
 }
 

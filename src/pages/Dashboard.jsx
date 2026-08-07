@@ -1,109 +1,266 @@
+import { useEffect, useState } from "react";
+
 import DashboardHeader from "../cards/DashboardHeader";
 import SummaryCards from "../cards/SummaryCards";
 import IncidentTable from "../cards/IncidentTable";
 import EquipmentStatus from "../cards/EquipmentStatus";
 import MaintenanceTable from "../cards/MaintenanceTable";
-import incidentsData from "../data/incidents";
-import assetsData from "../data/assets";
-import maintenanceData from "../data/maintenance";
+
+import { getIncidents } from "../api/incidentsApi";
+import { getAssets } from "../api/assetsApi";
+import { getMaintenanceRecords } from "../api/maintenanceApi";
+
 
 function Dashboard() {
 
-  const incidents =
 
-    JSON.parse(
-      localStorage.getItem("incidents")
-    )
-    ||
-    incidentsData;
+const [incidents,setIncidents] = useState([]);
 
-  const assets =
+const [assets,setAssets] = useState([]);
 
-    JSON.parse(
-      localStorage.getItem("assets")
-    )
-    ||
-    assetsData;
+const [maintenance,setMaintenance] = useState([]);
 
-  const maintenance =
 
-    JSON.parse(
-      localStorage.getItem("maintenance")
-    )
-    ||
-    maintenanceData;
+const [loading,setLoading] = useState(true);
 
-  const activeIncidents = incidents.filter(
 
-    (incident) =>
 
-      incident.status !== "Resolved" &&
+useEffect(()=>{
 
-      incident.status !== "Fixed"
 
-  ).length;
+async function loadDashboard(){
 
-  const totalAssets = assets.length;
 
-  const maintenanceDue = assets.filter(
+try{
 
-    (asset)=>
 
-      asset.status === "Maintenance Due"
+const [
+    incidentsData,
+    assetsData,
+    maintenanceData
 
-  ).length;
+] = await Promise.all([
 
-  const systemStatus = assets.some(
 
-    (asset)=>
+    getIncidents(),
 
-      asset.status === "Faulty"
+    getAssets(),
 
-  )
+    getMaintenanceRecords()
 
-  ?
 
-  "Attention Required"
+]);
 
-  :
 
-  "Operational";
 
-  return (
+setIncidents(incidentsData);
 
-    <div className="space-y-8">
+setAssets(assetsData);
 
-      <DashboardHeader />
+setMaintenance(maintenanceData);
 
-      <SummaryCards
 
-        activeIncidents={activeIncidents}
-        totalAssets={totalAssets}
-        maintenanceDue={maintenanceDue}
-        systemStatus={systemStatus}
-
-      />
-
-      <IncidentTable
-
-        incidents={incidents}
-
-        isAdmin={false}
-
-      />
-      <EquipmentStatus
-
-        assets={assets}
-
-      />
-      <MaintenanceTable
-
-        maintenance={maintenance}
-
-      />
-    </div>
-
-  );
 
 }
+
+catch(err){
+
+
+console.error(
+    "Dashboard loading error:",
+    err
+);
+
+
+}
+
+
+finally{
+
+
+setLoading(false);
+
+
+}
+
+
+
+}
+
+
+
+loadDashboard();
+
+
+},[]);
+
+
+
+
+
+
+if(loading){
+
+return (
+
+<div className="p-10 text-gray-600">
+
+Loading dashboard...
+
+</div>
+
+);
+
+}
+
+
+
+
+
+
+
+const activeIncidents = incidents.filter(
+
+(incident)=>
+
+    incident.status !== "Resolved" &&
+
+    incident.status !== "Fixed"
+
+
+).length;
+
+
+
+
+
+
+
+const totalAssets = assets.length;
+
+
+
+
+
+
+
+const maintenanceDue = assets.filter(
+
+(asset)=>
+
+    asset.status === "Maintenance Due"
+
+
+).length;
+
+
+
+
+
+
+
+const systemStatus = assets.some(
+
+(asset)=>
+
+    asset.status === "Faulty"
+
+
+)
+
+?
+
+"Attention Required"
+
+:
+
+"Operational";
+
+
+
+
+
+
+
+
+
+return (
+
+<div className="space-y-8">
+
+
+<DashboardHeader />
+
+
+
+
+
+<SummaryCards
+
+
+activeIncidents={activeIncidents}
+
+
+totalAssets={totalAssets}
+
+
+maintenanceDue={maintenanceDue}
+
+
+systemStatus={systemStatus}
+
+
+/>
+
+
+
+
+
+
+
+<IncidentTable
+
+incidents={incidents}
+
+isAdmin={false}
+
+/>
+
+
+
+
+
+
+
+<EquipmentStatus
+
+assets={assets}
+
+/>
+
+
+
+
+
+
+
+
+<MaintenanceTable
+
+maintenance={maintenance}
+
+/>
+
+
+
+
+
+</div>
+
+);
+
+
+}
+
+
 export default Dashboard;

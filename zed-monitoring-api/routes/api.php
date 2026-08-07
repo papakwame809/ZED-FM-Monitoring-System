@@ -6,7 +6,7 @@ use App\Http\Controllers\AssetController;
 use App\Http\Controllers\MaintenanceRecordController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\AuthController;
-
+use App\Http\Controllers\NotificationController;
 
 
 /*
@@ -16,10 +16,9 @@ use App\Http\Controllers\AuthController;
 */
 
 Route::post(
-    'login',
+    '/login',
     [AuthController::class, 'login']
 );
-
 
 
 
@@ -30,10 +29,9 @@ Route::post(
 */
 
 Route::apiResource(
-    'assets',
+    '/assets',
     AssetController::class
 );
-
 
 
 
@@ -44,10 +42,9 @@ Route::apiResource(
 */
 
 Route::apiResource(
-    'maintenance-records',
+    '/maintenance-records',
     MaintenanceRecordController::class
 );
-
 
 
 
@@ -58,6 +55,17 @@ Route::apiResource(
 */
 
 Route::apiResource(
-    'incidents',
+    '/incidents',
     IncidentController::class
+);
+
+Route::get(
+    'notifications',
+    [NotificationController::class,'index']
+);
+
+
+Route::put(
+    'notifications/{id}/read',
+    [NotificationController::class,'markAsRead']
 );

@@ -12,61 +12,46 @@ class MaintenanceRecordSeeder extends Seeder
     public function run(): void
     {
 
-        MaintenanceRecord::create([
+        $records = [
 
-            'asset_id' => 1,
-
-            'task' => 'Replaced transmitter cooling fan',
-
-            'technician' => 'Kwame Mensah',
-
-            'maintenance_date' => '2026-07-10',
-
-            'status' => 'Completed',
-
-            'notes' => 'Cooling system restored successfully.',
-
-        ]);
+            [
+                'asset_id' => 1,
+                'task' => 'Inspect FM transmitter power output',
+                'technician' => 'Kwame',
+                'maintenance_date' => '2026-08-15',
+                'status' => 'Scheduled',
+                'notes' => 'Check signal strength, cooling system, and connections.',
+            ],
 
 
+            [
+                'asset_id' => 2,
+                'task' => 'Studio console servicing',
+                'technician' => 'Ama',
+                'maintenance_date' => '2026-08-20',
+                'status' => 'Pending',
+                'notes' => 'Replace faulty audio channels and test outputs.',
+            ],
 
 
+            [
+                'asset_id' => 3,
+                'task' => 'Generator inspection',
+                'technician' => 'Sara',
+                'maintenance_date' => '2026-08-25',
+                'status' => 'Scheduled',
+                'notes' => 'Inspect fuel system, battery, and voltage output.',
+            ],
 
-        MaintenanceRecord::create([
-
-            'asset_id' => 2,
-
-            'task' => 'Studio console inspection and calibration',
-
-            'technician' => 'Ama Boateng',
-
-            'maintenance_date' => '2026-07-15',
-
-            'status' => 'Completed',
-
-            'notes' => 'Audio channels tested and calibrated.',
-
-        ]);
+        ];
 
 
 
+        foreach ($records as $record) {
 
+            MaintenanceRecord::create($record);
 
-        MaintenanceRecord::create([
-
-            'asset_id' => 3,
-
-            'task' => 'Generator diagnostic check',
-
-            'technician' => 'Kofi Asare',
-
-            'maintenance_date' => '2026-07-20',
-
-            'status' => 'Pending',
-
-            'notes' => 'Awaiting replacement parts.',
-
-        ]);
+        }
 
     }
 

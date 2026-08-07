@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Incident;
+use App\Models\Notification;
 use Illuminate\Http\Request;
-
 
 class IncidentController extends Controller
 {
@@ -14,13 +14,12 @@ class IncidentController extends Controller
      */
     public function index()
     {
-
-        return Incident::with('asset')
-            ->get();
-
+        return response()->json(
+            Incident::with('asset')
+                ->latest()
+                ->get()
+        );
     }
-
-
 
 
     /**
@@ -31,34 +30,63 @@ class IncidentController extends Controller
 
         $validated = $request->validate([
 
-            'asset_id' => 'required|exists:assets,id',
+            'asset_id' => [
+                'required',
+                'exists:assets,id'
+            ],
 
-            'title' => 'required|string',
+            'title' => [
+                'required',
+                'string'
+            ],
 
-            'description' => 'nullable|string',
+            'description' => [
+                'nullable',
+                'string'
+            ],
 
-            'status' => 'required|string',
+            'severity' => [
+                'required',
+                'string'
+            ],
 
-            'reported_date' => 'required|date',
+        ]);
+
+
+        $incident = Incident::create([
+
+            ...$validated,
+
+            'status' => 'Open',
+
+            'incident_date' => now(),
 
         ]);
 
 
 
-        $incident = Incident::create(
-            $validated
-        );
+        Notification::create([
+
+            'title' => 'New Incident Reported',
+
+            'message' =>
+                "{$incident->title} requires attention.",
+
+        ]);
 
 
 
-        return response()->json(
-            $incident,
-            201
-        );
+        return response()->json([
+
+            'message' =>
+                'Incident created successfully',
+
+            'incident' =>
+                $incident->load('asset')
+
+        ], 201);
 
     }
-
-
 
 
 
@@ -68,14 +96,14 @@ class IncidentController extends Controller
     public function show(string $id)
     {
 
-        return Incident::with('asset')
-            ->findOrFail($id);
+        return response()->json(
+
+            Incident::with('asset')
+                ->findOrFail($id)
+
+        );
 
     }
-
-
-
-
 
 
 
@@ -94,31 +122,57 @@ class IncidentController extends Controller
 
         $validated = $request->validate([
 
-            'title' => 'sometimes|string',
+            'asset_id' => [
+                'sometimes',
+                'exists:assets,id'
+            ],
 
-            'description' => 'nullable|string',
+            'title' => [
+                'sometimes',
+                'string'
+            ],
 
-            'status' => 'sometimes|string',
+            'description' => [
+                'nullable',
+                'string'
+            ],
 
-            'reported_date' => 'sometimes|date',
+            'severity' => [
+                'sometimes',
+                'string'
+            ],
+
+            'status' => [
+                'sometimes',
+                'string'
+            ],
+
+            'incident_date' => [
+                'sometimes',
+                'date'
+            ],
 
         ]);
 
 
 
-        $incident->update(
-            $validated
-        );
+        $incident->update($validated);
 
 
 
-        return $incident;
+        return response()->json([
+
+            'message' =>
+                'Incident updated successfully',
+
+            'incident' =>
+                $incident
+                    ->fresh()
+                    ->load('asset')
+
+        ]);
 
     }
-
-
-
-
 
 
 
@@ -131,14 +185,14 @@ class IncidentController extends Controller
         $incident = Incident::findOrFail($id);
 
 
-
         $incident->delete();
 
 
 
         return response()->json([
 
-            'message' => 'Incident deleted successfully'
+            'message' =>
+                'Incident deleted successfully'
 
         ]);
 

@@ -1,51 +1,73 @@
 import { Pencil, Trash2 } from "lucide-react";
 
 
-function severityColor(severity) {
+function formatDate(date) {
 
-  switch (severity) {
+    if (!date) return "-";
 
-    case "Critical":
-      return "text-red-600";
-
-    case "High":
-      return "text-orange-600";
-
-    case "Medium":
-      return "text-yellow-600";
-
-    case "Low":
-      return "text-green-600";
-
-    default:
-      return "text-gray-600";
-
-  }
+    return new Date(date).toLocaleDateString(
+        "en-GB",
+        {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+        }
+    );
 
 }
+
+
+
+
+
+function severityColor(severity) {
+
+    switch(severity){
+
+        case "Critical":
+            return "text-red-600";
+
+        case "High":
+            return "text-orange-600";
+
+        case "Medium":
+            return "text-yellow-600";
+
+        case "Low":
+            return "text-green-600";
+
+        default:
+            return "text-gray-600";
+
+    }
+
+}
+
 
 
 
 
 function statusColor(status) {
 
-  switch (status) {
+    switch(status){
 
-    case "Open":
-      return "text-red-600";
+        case "Open":
+            return "text-red-600";
 
-    case "In Progress":
-      return "text-yellow-600";
+        case "In Progress":
+            return "text-yellow-600";
 
-    case "Resolved":
-      return "text-green-600";
+        case "Resolved":
+            return "text-green-600";
 
-    default:
-      return "text-gray-600";
+        default:
+            return "text-gray-600";
 
-  }
+    }
 
 }
+
+
 
 
 
@@ -53,313 +75,401 @@ function statusColor(status) {
 
 function IncidentTable({
 
-  incidents = [],
+    incidents = [],
 
-  onDelete = () => {},
+    onDelete = () => {},
 
-  onEdit = () => {},
+    onEdit = () => {},
 
-  onView = () => {},
+    onView = () => {},
 
-  isAdmin = false,
+    isAdmin = false,
 
 }) {
 
 
-  return (
 
-    <div className="rounded-xl border bg-white p-6 shadow-sm">
+return (
 
+<div className="
+rounded-xl
+border
+bg-white
+p-6
+shadow-sm
+">
 
-      <h2 className="mb-6 text-2xl font-bold">
-        Recent Incidents
-      </h2>
 
+<h2 className="
+mb-6
+text-2xl
+font-bold
+">
 
+Recent Incidents
 
+</h2>
 
 
-      <div className="overflow-x-auto">
 
 
-        <table className="min-w-full">
 
+<div className="overflow-x-auto">
 
-          <thead className="border-b bg-gray-50">
 
-            <tr>
+<table className="min-w-full">
 
-              {[
-                "Title",
-                "Asset",
-                "Severity",
-                "Technician",
-                "Status",
-                "Date",
-              ].map((header)=>(
 
-                <th
-                  key={header}
-                  className="px-6 py-4 text-left"
-                >
-                  {header}
-                </th>
 
-              ))}
+<thead className="border-b bg-gray-50">
 
 
+<tr>
 
-              {
-                isAdmin && (
 
-                  <th className="px-6 py-4 text-left">
-                    Actions
-                  </th>
+{
+[
+"Title",
+"Asset",
+"Severity",
+"Status",
+"Date"
 
-                )
-              }
+].map(header => (
 
 
-            </tr>
+<th
 
+key={header}
 
-          </thead>
+className="
+px-6
+py-4
+text-left
+"
 
+>
 
+{header}
 
+</th>
 
 
+))
+}
 
 
-          <tbody>
 
 
-            {
-              incidents.length === 0 ? (
 
+{
+isAdmin && (
 
-                <tr>
+<th className="
+px-6
+py-4
+text-left
+">
 
-                  <td
+Actions
 
-                    colSpan={isAdmin ? 7 : 6}
+</th>
 
-                    className="py-8 text-center text-gray-500"
-
-                  >
-
-                    No incidents recorded.
-
-                  </td>
-
-                </tr>
-
-
-
-              ) : (
-
-
-
-                incidents.map((incident)=>(
-
-
-                  <tr
-
-                    key={incident.id}
-
-                    onClick={() => onView(incident)}
-
-                    className="
-                    cursor-pointer
-                    border-b
-                    transition
-                    hover:bg-gray-50
-                    "
-
-                  >
-
-
-
-
-
-                    <td className="px-6 py-4 font-medium">
-
-                      {incident.title}
-
-                    </td>
-
-
-
-
-
-                    <td className="px-6 py-4">
-
-                      {incident.asset}
-
-                    </td>
-
-
-
-
-
-                    <td
-
-                      className={`px-6 py-4 font-medium ${severityColor(
-                        incident.severity
-                      )}`}
-
-                    >
-
-                      {incident.severity}
-
-                    </td>
-
-
-
-
-
-                    <td className="px-6 py-4">
-
-                      {incident.technician}
-
-                    </td>
-
-
-
-
-
-                    <td
-
-                      className={`px-6 py-4 font-medium ${statusColor(
-                        incident.status
-                      )}`}
-
-                    >
-
-                      {incident.status}
-
-                    </td>
-
-
-
-
-
-                    <td className="px-6 py-4">
-
-                      {incident.date}
-
-                    </td>
-
-
-
-
-
-
-
-
-                    {
-                      isAdmin && (
-
-                        <td className="px-6 py-4">
-
-
-                          <div className="flex gap-2">
-
-
-
-                            <button
-
-                              onClick={(e)=>{
-
-                                e.stopPropagation();
-
-                                onEdit(incident);
-
-                              }}
-
-                              className="
-                              rounded-lg
-                              bg-blue-600
-                              p-2
-                              text-white
-                              hover:bg-blue-700
-                              "
-
-                            >
-
-                              <Pencil size={16}/>
-
-                            </button>
-
-
-
-
-
-
-                            <button
-
-                              onClick={(e)=>{
-
-                                e.stopPropagation();
-
-                                onDelete(incident.id);
-
-                              }}
-
-                              className="
-                              rounded-lg
-                              bg-red-600
-                              p-2
-                              text-white
-                              hover:bg-red-700
-                              "
-
-                            >
-
-                              <Trash2 size={16}/>
-
-                            </button>
-
-
-
-
-                          </div>
-
-
-                        </td>
-
-                      )
-                    }
-
-
-
-
-                  </tr>
-
-
-                ))
-
-
-              )
-            }
-
-
-
-          </tbody>
-
-
-        </table>
-
-
-      </div>
-
-
-    </div>
-
-  );
+)
 
 }
 
 
 
+</tr>
+
+
+</thead>
+
+
+
+
+
+
+
+<tbody>
+
+
+
+{
+incidents.length === 0 ? (
+
+
+<tr>
+
+
+<td
+
+colSpan={isAdmin ? 6 : 5}
+
+className="
+py-8
+text-center
+text-gray-500
+"
+
+>
+
+No incidents recorded.
+
+</td>
+
+
+</tr>
+
+
+
+)
+
+:
+
+(
+
+
+incidents.map((incident)=>(
+
+
+
+<tr
+
+key={incident.id}
+
+onClick={() => onView(incident)}
+
+className="
+cursor-pointer
+border-b
+transition
+hover:bg-gray-50
+"
+
+>
+
+
+
+
+
+
+
+<td className="
+px-6
+py-4
+font-medium
+">
+
+{incident.title}
+
+</td>
+
+
+
+
+
+
+
+
+<td className="
+px-6
+py-4
+">
+
+{
+incident.asset?.name
+||
+"Unknown Asset"
+}
+
+</td>
+
+
+
+
+
+
+
+
+<td
+
+className={`
+px-6
+py-4
+font-medium
+${severityColor(
+incident.severity
+)}
+`}
+
+>
+
+{incident.severity}
+
+</td>
+
+
+
+
+
+
+
+
+<td
+
+className={`
+px-6
+py-4
+font-medium
+${statusColor(
+incident.status
+)}
+`}
+
+>
+
+{incident.status}
+
+</td>
+
+
+
+
+
+
+
+
+<td className="
+px-6
+py-4
+">
+
+{formatDate(
+incident.incidentDate
+)}
+
+</td>
+
+
+
+
+
+
+
+
+
+
+{
+isAdmin && (
+
+<td className="
+px-6
+py-4
+">
+
+
+<div className="flex gap-2">
+
+
+
+
+
+<button
+
+onClick={(e)=>{
+
+e.stopPropagation();
+
+onEdit(incident);
+
+}}
+
+className="
+rounded-lg
+bg-blue-600
+p-2
+text-white
+hover:bg-blue-700
+"
+
+>
+
+<Pencil size={16}/>
+
+</button>
+
+
+
+
+
+
+
+<button
+
+onClick={(e)=>{
+
+e.stopPropagation();
+
+onDelete(incident.id);
+
+}}
+
+className="
+rounded-lg
+bg-red-600
+p-2
+text-white
+hover:bg-red-700
+"
+
+>
+
+<Trash2 size={16}/>
+
+</button>
+
+
+
+
+
+</div>
+
+
+</td>
+
+)
+
+}
+
+
+
+
+
+</tr>
+
+
+
+))
+
+
+)
+
+
+}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+
+);
+
+
+}
 export default IncidentTable;

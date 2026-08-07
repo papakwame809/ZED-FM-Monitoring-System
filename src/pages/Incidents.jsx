@@ -1,311 +1,114 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import IncidentTable from "../cards/IncidentTable";
 
-import incidentsData from "../data/incidents";
+import {
+    getIncidents,
+    deleteIncident
+} from "../api/incidentsApi";
 
 import { useAuth } from "../auth/useAuth";
 import { ROLES, hasRole } from "../auth/roles";
 
 
-function Incidents() {
+
+function Incidents(){
 
 
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
 
-  const { user } = useAuth();
+    const { user } = useAuth();
 
 
-  const isAdmin = hasRole(user, ROLES.ADMIN);
-
-  const isTechnician = hasRole(user, ROLES.TECHNICIAN);
-
-
-  const canManageIncidents = isAdmin || isTechnician;
-
-
-
-
-
-  const storedIncidents = JSON.parse(
-    localStorage.getItem("incidents")
-  );
-
-
-
-  const [incidents, setIncidents] = useState(
-    storedIncidents || incidentsData
-  );
-
-
-
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const [filterStatus, setFilterStatus] = useState("All");
-
-
-
-
-
-
-
-  function handleDeleteIncident(id) {
-
-
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this incident?"
+    const isAdmin = hasRole(
+        user,
+        ROLES.ADMIN
     );
 
 
-    if (!confirmed) return;
-
-
-
-    const updatedIncidents = incidents.filter(
-      (incident) =>
-        incident.id !== id
+    const isTechnician = hasRole(
+        user,
+        ROLES.TECHNICIAN
     );
 
 
+    const canManageIncidents =
+        isAdmin || isTechnician;
 
-    setIncidents(updatedIncidents);
 
 
 
-    localStorage.setItem(
-      "incidents",
-      JSON.stringify(updatedIncidents)
-    );
 
+    const [incidents,setIncidents] = useState([]);
 
-  }
+    const [loading,setLoading] = useState(true);
 
+    const [error,setError] = useState("");
 
 
 
+    const [searchTerm,setSearchTerm] = useState("");
 
+    const [filterStatus,setFilterStatus] = useState("All");
 
 
 
 
-  function handleEditIncident(incident) {
 
 
-    navigate(
-      `/report-incident/${incident.id}`
-    );
 
+    useEffect(()=>{
 
-  }
 
+        async function loadIncidents(){
 
 
+            try{
 
 
+                const data = await getIncidents();
 
 
+                setIncidents(data);
 
-  function handleViewIncident(incident) {
 
+            }
 
-    navigate(
-      `/incidents/${incident.id}`
-    );
 
+            catch(err){
 
-  }
 
+                console.error(err);
 
 
+                setError(
+                    "Failed to load incidents"
+                );
 
 
+            }
 
 
+            finally{
 
 
-  const filteredIncidents = incidents.filter(
-    (incident)=>{
+                setLoading(false);
 
 
-      const searchMatch =
+            }
 
-        incident.title
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase())
 
-        ||
-
-        incident.asset
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
-
-
-
-
-
-      const statusMatch =
-
-        filterStatus === "All"
-
-        ||
-
-        incident.status === filterStatus;
-
-
-
-
-
-      return searchMatch && statusMatch;
-
-
-    }
-  );
-
-
-
-
-
-
-
-
-
-  return (
-
-    <div className="space-y-10">
-
-
-      {/* Header */}
-
-      <div>
-
-        <h1 className="text-3xl font-bold">
-          Incident Management
-        </h1>
-
-
-        <p className="text-gray-600">
-          Track, assign and resolve technical issues.
-        </p>
-
-
-      </div>
-
-
-
-
-
-
-
-
-
-      {/* Actions */}
-
-      <div className="flex flex-wrap items-center gap-6">
-
-
-        {
-          canManageIncidents && (
-
-            <button
-
-              onClick={() => navigate("/report-incident")}
-
-              className="
-              rounded-xl
-              bg-black
-              px-6
-              py-3
-              text-white
-              transition
-              hover:bg-violet-600
-              "
-
-            >
-
-              + Report Incident
-
-            </button>
-
-          )
         }
 
 
 
+        loadIncidents();
 
 
 
-
-        <input
-
-          type="text"
-
-          placeholder="Search incidents..."
-
-          value={searchTerm}
-
-          onChange={(e)=>
-            setSearchTerm(e.target.value)
-          }
-
-          className="
-          rounded-xl
-          border
-          px-6
-          py-3
-          "
-
-        />
-
-
-
-
-
-
-
-
-        <select
-
-          value={filterStatus}
-
-          onChange={(e)=>
-            setFilterStatus(e.target.value)
-          }
-
-          className="
-          rounded-xl
-          border
-          px-6
-          py-3
-          "
-
-        >
-
-          <option value="All">
-            All Status
-          </option>
-
-
-          <option value="Open">
-            Open
-          </option>
-
-
-          <option value="In Progress">
-            In Progress
-          </option>
-
-
-          <option value="Resolved">
-            Resolved
-          </option>
-
-
-        </select>
-
-
-      </div>
+    },[]);
 
 
 
@@ -315,29 +118,329 @@ function Incidents() {
 
 
 
-      {/* Incident Table */}
+    async function handleDeleteIncident(id){
 
-      <IncidentTable
 
-        incidents={filteredIncidents}
+        const confirmed =
+            window.confirm(
+                "Delete this incident?"
+            );
 
-        isAdmin={canManageIncidents}
 
-        onDelete={handleDeleteIncident}
-
-        onEdit={handleEditIncident}
-
-        onView={handleViewIncident}
-
-      />
+        if(!confirmed)
+        return;
 
 
 
-    </div>
+        try{
 
-  );
+
+            await deleteIncident(id);
+
+
+
+            setIncidents(prev =>
+
+                prev.filter(
+                    incident =>
+                    incident.id !== id
+                )
+
+            );
+
+
+        }
+
+
+        catch(err){
+
+
+            console.error(err);
+
+
+        }
+
+
+    }
+
+
+
+
+
+
+
+
+    function handleEditIncident(incident){
+
+
+        navigate(
+            `/report-incident/${incident.id}`
+        );
+
+
+    }
+
+
+
+
+
+
+
+    function handleViewIncident(incident){
+
+
+        navigate(
+            `/incidents/${incident.id}`
+        );
+
+
+    }
+
+
+
+
+
+
+
+
+    const filteredIncidents = useMemo(()=>{
+
+
+        return incidents.filter(incident=>{
+
+
+            const searchMatch =
+
+                incident.title
+                ?.toLowerCase()
+                .includes(
+                    searchTerm.toLowerCase()
+                )
+
+                ||
+
+                incident.asset?.name
+                ?.toLowerCase()
+                .includes(
+                    searchTerm.toLowerCase()
+                );
+
+
+
+
+
+            const statusMatch =
+
+                filterStatus === "All"
+
+                ||
+
+                incident.status === filterStatus;
+
+
+
+            return (
+                searchMatch &&
+                statusMatch
+            );
+
+
+        });
+
+
+    },[
+        incidents,
+        searchTerm,
+        filterStatus
+    ]);
+
+
+
+
+
+
+
+
+    if(loading)
+    return <p>Loading incidents...</p>;
+
+
+
+
+
+    if(error)
+    return <p>{error}</p>;
+
+
+
+
+
+
+
+
+    return (
+
+        <div className="space-y-10">
+
+
+            <div>
+
+
+                <h1 className="text-3xl font-bold">
+
+                    Incident Management
+
+                </h1>
+
+
+
+                <p className="text-gray-600">
+
+                    Track, assign and resolve technical issues.
+
+                </p>
+
+
+            </div>
+
+
+
+
+
+
+
+
+
+            <div className="flex flex-wrap gap-6">
+
+
+                {
+                    canManageIncidents && (
+
+                        <button
+
+                            onClick={() =>
+                                navigate("/report-incident")
+                            }
+
+                            className="
+                            rounded-xl
+                            bg-black
+                            px-6
+                            py-3
+                            text-white
+                            hover:bg-violet-600
+                            "
+
+                        >
+
+                            + Report Incident
+
+                        </button>
+
+                    )
+                }
+
+
+
+
+
+                <input
+
+                    value={searchTerm}
+
+                    onChange={
+                        e =>
+                        setSearchTerm(
+                            e.target.value
+                        )
+                    }
+
+                    placeholder="Search incidents..."
+
+                    className="
+                    rounded-xl
+                    border
+                    px-6
+                    py-3
+                    "
+
+                />
+
+
+
+
+
+                <select
+
+                    value={filterStatus}
+
+                    onChange={
+                        e =>
+                        setFilterStatus(
+                            e.target.value
+                        )
+                    }
+
+                    className="
+                    rounded-xl
+                    border
+                    px-6
+                    py-3
+                    "
+
+                >
+
+                    <option value="All">
+                        All Status
+                    </option>
+
+                    <option value="Open">
+                        Open
+                    </option>
+
+                    <option value="In Progress">
+                        In Progress
+                    </option>
+
+                    <option value="Resolved">
+                        Resolved
+                    </option>
+
+
+                </select>
+
+
+            </div>
+
+
+
+
+
+
+
+
+            <IncidentTable
+
+                incidents={filteredIncidents}
+
+                isAdmin={canManageIncidents}
+
+                onDelete={handleDeleteIncident}
+
+                onEdit={handleEditIncident}
+
+                onView={handleViewIncident}
+
+            />
+
+
+        </div>
+
+    );
 
 }
+
 
 
 export default Incidents;

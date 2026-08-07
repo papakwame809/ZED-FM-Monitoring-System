@@ -4,18 +4,30 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-
 class MaintenanceRecord extends Model
 {
 
     protected $fillable = [
 
         'asset_id',
+
         'task',
+
         'technician',
+
         'maintenance_date',
+
         'status',
+
         'notes',
+
+    ];
+
+
+
+    protected $casts = [
+
+        'maintenance_date' => 'date',
 
     ];
 
@@ -23,11 +35,9 @@ class MaintenanceRecord extends Model
 
     public function asset()
     {
-
         return $this->belongsTo(
             Asset::class
         );
-
     }
 
 }

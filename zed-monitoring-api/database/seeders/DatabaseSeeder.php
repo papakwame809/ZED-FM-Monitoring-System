@@ -14,6 +14,8 @@ class DatabaseSeeder extends Seeder
 
             MaintenanceRecordSeeder::class,
 
+            NotificationSeeder::class,
+
         ]);
     }
 }

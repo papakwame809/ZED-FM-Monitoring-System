@@ -175,9 +175,5 @@ class MaintenanceRecordController extends Controller
 
     }
 
-    public function asset()
-{
-    return $this->belongsTo(Asset::class);
-}
 
 }

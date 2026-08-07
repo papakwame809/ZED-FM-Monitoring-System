@@ -1,28 +1,27 @@
-
 function statusColor(status) {
 
-  switch(status){
+    switch(status){
 
-    case "Completed":
-      return "text-green-600";
-
-
-    case "Scheduled":
-      return "text-blue-600";
+        case "Completed":
+            return "text-green-600";
 
 
-    case "Pending":
-      return "text-yellow-600";
+        case "Scheduled":
+            return "text-blue-600";
 
 
-    case "Overdue":
-      return "text-red-600";
+        case "Pending":
+            return "text-yellow-600";
 
 
-    default:
-      return "text-gray-600";
+        case "Overdue":
+            return "text-red-600";
 
-  }
+
+        default:
+            return "text-gray-600";
+
+    }
 
 }
 
@@ -31,252 +30,287 @@ function statusColor(status) {
 
 function MaintenanceTable({
 
-  maintenance,
+    maintenance = [],
 
-  onEdit,
+    onEdit,
 
-  onDelete,
+    onDelete,
 
-  isAdmin
+    isAdmin
 
 }) {
 
 
-  return (
+return (
 
-    <div className="overflow-x-auto rounded-xl bg-white shadow">
+<div className="
+overflow-x-auto
+rounded-xl
+bg-white
+shadow
+">
 
 
-      <table className="min-w-full">
+<table className="min-w-full">
 
 
-        <thead className="border-b bg-gray-50">
+<thead className="border-b bg-gray-50">
 
 
-          <tr>
+<tr>
 
 
-            <th className="px-6 py-4 text-left">
-              Asset
-            </th>
+<th className="px-6 py-4 text-left">
+Asset
+</th>
 
 
-            <th className="px-6 py-4 text-left">
-              Maintenance Type
-            </th>
+<th className="px-6 py-4 text-left">
+Maintenance Type
+</th>
 
 
-            <th className="px-6 py-4 text-left">
-              Technician
-            </th>
+<th className="px-6 py-4 text-left">
+Technician
+</th>
 
 
-            <th className="px-6 py-4 text-left">
-              Due Date
-            </th>
+<th className="px-6 py-4 text-left">
+Due Date
+</th>
 
 
-            <th className="px-6 py-4 text-left">
-              Priority
-            </th>
+<th className="px-6 py-4 text-left">
+Priority
+</th>
 
 
-            <th className="px-6 py-4 text-left">
-              Status
-            </th>
+<th className="px-6 py-4 text-left">
+Status
+</th>
 
 
 
-            {
-              isAdmin && (
+{
+isAdmin && (
 
-                <th className="px-6 py-4 text-left">
-                  Actions
-                </th>
+<th className="px-6 py-4 text-left">
+Actions
+</th>
 
-              )
-            }
+)
+}
 
 
 
-          </tr>
+</tr>
 
 
-        </thead>
+</thead>
 
 
 
 
 
+<tbody>
 
 
-        <tbody>
+{
+maintenance.map((item)=>(
 
 
-          {
-            maintenance.map((item)=>(
+<tr
 
+key={item.id}
 
-              <tr
+className="
+border-b
+hover:bg-gray-50
+"
 
-                key={item.id}
+>
 
-                className="
-                border-b
-                hover:bg-gray-50
-                "
 
-              >
+<td className="px-6 py-4">
 
 
+{
 
-                <td className="px-6 py-4">
+typeof item.asset === "object"
 
-                  {item.asset}
+?
 
-                </td>
+item.asset?.name
 
+:
 
+item.asset
 
+}
 
 
-                <td className="px-6 py-4">
+</td>
 
-                  {item.type}
 
-                </td>
 
 
 
+<td className="px-6 py-4">
 
 
-                <td className="px-6 py-4">
+{
+item.type 
+||
+item.task
+}
 
-                  {item.technician}
 
-                </td>
+</td>
 
 
 
 
 
-                <td className="px-6 py-4">
+<td className="px-6 py-4">
 
-                  {item.dueDate || item.date}
+{item.technician}
 
-                </td>
+</td>
 
 
 
 
 
-                <td className="px-6 py-4">
+<td className="px-6 py-4">
+    {
+        item.maintenance_date
+        ? item.maintenance_date.split("T")[0]
+        : "-"
+    }
+</td>
 
-                  {item.priority || "Normal"}
 
-                </td>
 
 
+<td className="px-6 py-4">
 
 
+{
+item.priority
+||
+"Normal"
+}
 
-                <td
 
-                  className={`
-                  px-6 py-4
-                  font-medium
-                  ${statusColor(item.status)}
-                  `}
+</td>
 
-                >
 
-                  {item.status}
 
-                </td>
 
 
+<td
 
+className={`
+px-6 py-4
+font-medium
+${statusColor(item.status)}
+`}
 
+>
 
+{item.status}
 
+</td>
 
-                {
-                  isAdmin && (
 
-                    <td className="px-6 py-4 flex gap-3">
 
 
-                      <button
 
-                        onClick={()=>onEdit(item)}
 
-                        className="
-                        rounded-lg
-                        bg-blue-600
-                        px-4
-                        py-2
-                        text-white
-                        hover:bg-blue-700
-                        "
 
-                      >
+{
 
-                        Edit
+isAdmin && (
 
-                      </button>
+<td className="
+px-6
+py-4
+flex
+gap-3
+">
 
 
+<button
 
+onClick={()=>onEdit(item)}
 
+className="
+rounded-lg
+bg-blue-600
+px-4
+py-2
+text-white
+hover:bg-blue-700
+"
 
-                      <button
+>
 
-                        onClick={()=>onDelete(item.id)}
+Edit
 
-                        className="
-                        rounded-lg
-                        bg-red-600
-                        px-4
-                        py-2
-                        text-white
-                        hover:bg-red-700
-                        "
+</button>
 
-                      >
 
-                        Delete
 
-                      </button>
 
 
+<button
 
-                    </td>
+onClick={()=>onDelete(item.id)}
 
-                  )
-                }
+className="
+rounded-lg
+bg-red-600
+px-4
+py-2
+text-white
+hover:bg-red-700
+"
 
+>
 
+Delete
 
+</button>
 
 
-              </tr>
 
+</td>
 
-            ))
+)
 
-          }
+}
 
 
 
-        </tbody>
+</tr>
 
 
-      </table>
+))
 
+}
 
-    </div>
 
-  );
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
+);
 
 }
 

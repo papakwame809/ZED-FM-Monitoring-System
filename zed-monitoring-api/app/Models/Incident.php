@@ -25,6 +25,14 @@ class Incident extends Model
 
 
 
+    protected $casts = [
+
+        'incident_date' => 'date',
+
+    ];
+
+
+
     public function asset()
     {
 
