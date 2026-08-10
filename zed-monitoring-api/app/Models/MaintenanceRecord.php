@@ -2,42 +2,24 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class MaintenanceRecord extends Model
+class MaintenanceRecord extends Model // (or MaintenanceRecord)
 {
+    use HasFactory;
+
+    protected $table = 'maintenance_records'; // Match your table name
 
     protected $fillable = [
-
         'asset_id',
-
-        'task',
-
-        'technician',
-
-        'maintenance_date',
-
+        'title',
+        'task',         // 👈 Required by SQLite
+        'type',
         'status',
-
+        'maintenance_date',
+        'next_due_date',
         'notes',
-
+        'cost',
     ];
-
-
-
-    protected $casts = [
-
-        'maintenance_date' => 'date',
-
-    ];
-
-
-
-    public function asset()
-    {
-        return $this->belongsTo(
-            Asset::class
-        );
-    }
-
 }

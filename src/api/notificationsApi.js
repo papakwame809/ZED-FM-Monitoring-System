@@ -1,80 +1,36 @@
-const API_URL =
-"http://127.0.0.1:8000/api/notifications";
+import { apiFetch } from "./apiClient";
 
+function normalizeNotification(notification) {
+    
+  if (!notification) return null;
 
-
-async function handleResponse(response){
-
-const data =
-await response.json();
-
-
-
-if(!response.ok){
-
-throw new Error(
-data.message || "Request failed"
-);
-
+  return {
+    
+    id: notification.id,
+    title: notification.title,
+    message: notification.message,
+    read: Boolean(notification.read ?? notification.is_read),
+    createdAt: notification.created_at ?? notification.createdAt,
+  };
 }
 
-
-return data;
-
+// GET ALL NOTIFICATIONS
+export async function getNotifications() {
+  const data = await apiFetch("/notifications");
+  return Array.isArray(data) ? data.map(normalizeNotification) : [];
 }
 
-
-
-
-
-export async function getNotifications(){
-
-const response =
-await fetch(
-
-API_URL,
-
-{
-
-headers:{
-Accept:"application/json"
+// MARK AS READ
+export async function markNotificationRead(id) {
+  const data = await apiFetch(`/notifications/${id}/read`, {
+    method: "PUT",
+  });
+  return normalizeNotification(data);
 }
 
-}
-
-);
-
-
-return handleResponse(response);
-
-}
-
-
-
-
-
-
-
-export async function markNotificationRead(id){
-
-const response =
-await fetch(
-
-`${API_URL}/${id}/read`,
-
-{
-
-method:"PUT",
-
-headers:{
-Accept:"application/json"
-}
-
-}
-
-);
-
-
-return handleResponse(response);
-
+// CLEAR ALL NOTIFICATIONS
+export async function clearNotifications() {
+  return await apiFetch("/notifications/clear", {
+    method: "DELETE",
+  });
 }

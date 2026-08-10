@@ -1,138 +1,36 @@
-const API_URL =
-    "http://127.0.0.1:8000/api/maintenance-records";
+import { apiFetch } from "./apiClient";
 
+const formatMaintenancePayload = (data) => ({
+  ...data,
+  scheduled_date: data.scheduled_date || null,
+  completed_date: data.completed_date || null,
+});
 
-
-async function handleResponse(response){
-
-    const text =
-        await response.text();
-
-
-    const data =
-        text
-        ?
-        JSON.parse(text)
-        :
-        {};
-
-
-    if(!response.ok){
-
-        console.error(
-            "API Error:",
-            data
-        );
-
-
-        throw new Error(
-            data.message ||
-            "Request failed"
-        );
-
-    }
-
-
-    return data;
-
+export async function getMaintenanceRecords() {
+  return apiFetch("/maintenance");
 }
 
-
-
-
-function normalizeMaintenance(record){
-
-    return {
-
-        id:
-            record.id,
-
-
-        assetId:
-            record.asset_id,
-
-
-        asset:
-            record.asset
-            ??
-            null,
-
-
-        task:
-            record.task,
-
-
-        technician:
-            record.technician,
-
-
-        maintenanceDate:
-            record.maintenance_date
-            ?
-            record.maintenance_date.split("T")[0]
-            :
-            "",
-
-
-        status:
-            record.status,
-
-
-        notes:
-            record.notes ?? "",
-
-
-        createdAt:
-            record.created_at,
-
-
-        updatedAt:
-            record.updated_at
-
-    };
-
+export async function createMaintenanceRecord(recordData) {
+  return apiFetch("/maintenance", {
+    method: "POST",
+    body: JSON.stringify(formatMaintenancePayload(recordData)),
+  });
 }
 
-
-
-
-// GET ALL MAINTENANCE RECORDS
-
-export async function getMaintenanceRecords(){
-
-    const response =
-        await fetch(
-
-            API_URL,
-
-            {
-
-                headers:{
-
-                    Accept:
-                    "application/json"
-
-                }
-
-            }
-
-        );
-
-
-    const data =
-        await handleResponse(response);
-
-
-
-    console.log(
-        "Maintenance records:",
-        data
-    );
-
-
-
-    return data.map(
-        normalizeMaintenance
-    );
-
+export async function updateMaintenanceRecord(id, recordData) {
+  return apiFetch(`/maintenance/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(formatMaintenancePayload(recordData)),
+  });
 }
+
+export async function deleteMaintenanceRecord(id) {
+  return apiFetch(`/maintenance/${id}`, {
+    method: "DELETE",
+  });
+}
+
+// Aliases to match component imports seamlessly
+export const createMaintenance = createMaintenanceRecord;
+export const updateMaintenance = updateMaintenanceRecord;
+export const deleteMaintenance = deleteMaintenanceRecord;

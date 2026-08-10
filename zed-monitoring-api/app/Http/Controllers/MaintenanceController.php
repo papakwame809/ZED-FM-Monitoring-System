@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MaintenanceRecord;
+use App\Models\Maintenance; // Or App\Models\MaintenanceRecord depending on your model name
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
-class MaintenanceRecordController extends Controller
+class MaintenanceController extends Controller
 {
     /**
      * Display a listing of maintenance records.
@@ -13,7 +14,8 @@ class MaintenanceRecordController extends Controller
      */
     public function index()
     {
-        $records = MaintenanceRecord::with('asset')->latest()->get();
+        // Eager load asset relationship if defined in your Model
+        $records = Maintenance::with('asset')->latest()->get();
 
         return response()->json($records);
     }
@@ -36,7 +38,7 @@ class MaintenanceRecordController extends Controller
             'completed_date'   => 'nullable|date',
         ]);
 
-        $maintenance = MaintenanceRecord::create($validated);
+        $maintenance = Maintenance::create($validated);
 
         return response()->json($maintenance, 201);
     }
@@ -47,7 +49,7 @@ class MaintenanceRecordController extends Controller
      */
     public function show($id)
     {
-        $maintenance = MaintenanceRecord::with('asset')->findOrFail($id);
+        $maintenance = Maintenance::with('asset')->findOrFail($id);
 
         return response()->json($maintenance);
     }
@@ -58,7 +60,7 @@ class MaintenanceRecordController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $maintenance = MaintenanceRecord::findOrFail($id);
+        $maintenance = Maintenance::findOrFail($id);
 
         $validated = $request->validate([
             'asset_id'         => 'sometimes|required|exists:assets,id',
@@ -83,7 +85,7 @@ class MaintenanceRecordController extends Controller
      */
     public function destroy($id)
     {
-        $maintenance = MaintenanceRecord::findOrFail($id);
+        $maintenance = Maintenance::findOrFail($id);
         $maintenance->delete();
 
         return response()->json(['message' => 'Maintenance record deleted successfully']);

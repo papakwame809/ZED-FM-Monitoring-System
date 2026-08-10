@@ -17,6 +17,11 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+
+            // Add these two columns:
+            $table->string('role')->default('viewer');
+            $table->string('status')->default('active');
+
             $table->rememberToken();
             $table->timestamps();
         });
