@@ -3,6 +3,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../api/apiClient"; // Adjust path if needed
 
+import logo from "../assets/newzedlogo.jpg";
 function Login() {
   const navigate = useNavigate();
 
@@ -95,7 +96,7 @@ function Login() {
         className="flex w-full max-w-md flex-col items-center gap-6 px-8 py-10"
       >
         <img
-          src="/src/assets/newzedlogo.jpg"
+          src={logo}
           alt="ZED FM"
           className="h-32 w-80 object-contain"
         />
