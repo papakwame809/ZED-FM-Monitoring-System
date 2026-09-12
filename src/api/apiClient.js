@@ -2,7 +2,7 @@
 // src/api/apiClient.js
 
 const API_BASE_URL =
-  "https://YOUR-RENDER-URL.onrender.com/api";
+  "https://zed-fm-monitoring-system.onrender.com/api";
 
 export async function apiFetch(
   endpoint,
